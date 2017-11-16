@@ -1,0 +1,29 @@
+syntax = "proto3";
+package proto;
+
+service Cluster {
+    rpc Join(ClusterJoinReq) returns (ClusterJoinResp);
+    rpc Add(ClusterAddReq) returns (ClusterAddResp);
+}
+
+message Node {
+    string id = 1;
+    string address = 2;
+}
+
+message ClusterJoinReq {
+    Node node = 1;
+}
+
+message ClusterJoinResp {
+    int32 code = 1;
+}
+
+message ClusterAddReq {
+    string key = 1;
+    string value = 2;
+}
+
+message ClusterAddResp {
+    int32 code = 1;
+}
