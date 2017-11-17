@@ -1,0 +1,7 @@
+syntax = "proto3";
+package internal;
+
+message Node {
+	string id = 1;
+	string address = 2;
+}
