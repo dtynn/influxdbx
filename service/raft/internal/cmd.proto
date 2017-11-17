@@ -1,0 +1,26 @@
+syntax = "proto3";
+package internal;
+
+message CreateUserCmd {
+	string name = 1;
+	string password = 2;
+	bool admin = 3;
+}
+
+message UpdateUserCmd {
+	string name = 1;
+	string password = 2;
+}
+
+message DropUserCmd {
+	string name = 1;
+}
+
+message UserPrivilegeCmd {
+	string username = 1;
+	string database = 2;
+}
+
+message UserPrivilegesCmd {
+	string username = 1;
+}

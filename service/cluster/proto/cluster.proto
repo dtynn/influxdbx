@@ -1,0 +1,43 @@
+syntax = "proto3";
+package proto;
+
+enum Code {
+	CodeOK = 0;
+	CodeNotLeader = 1001;
+}
+
+service Cluster {
+	// add nodes to cluster
+	rpc Join(ClusterJoinReq) returns (ClusterJoinResp);
+
+	// remove nodes to cluster
+	rpc Remove(ClusterRemoveReq) returns (ClusterRemoveResp);
+}
+
+message Node {
+	string id = 1;
+	string address = 2;
+}
+
+message Result {
+	Code code = 1;
+	string message = 2;
+}
+
+message ClusterJoinReq {
+	repeated Node node = 1;
+}
+
+message ClusterJoinResp {
+	Code code = 1;
+	Node leader = 2;
+}
+
+message ClusterRemoveReq {
+	repeated Node node = 1;
+}
+
+message ClusterRemoveResp {
+	Code code = 1;
+	Node leader = 2;
+}

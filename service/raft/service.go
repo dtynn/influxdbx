@@ -8,15 +8,29 @@ import (
 
 	"github.com/hashicorp/raft"
 	"github.com/hashicorp/raft-boltdb"
+	"github.com/influxdata/influxdb/coordinator"
 )
 
 const (
-	MuxHeader byte = 11
+	MuxHeader byte = 12
 
 	raftFile = "raft.db"
 
 	defaultTransportTimeout = 10 * time.Second
 )
+
+func NewRaft(dir string, cfg *Config) *Raft {
+	transTimeout, _ := time.ParseDuration(cfg.TransportTimeout)
+	if transTimeout <= 0 {
+		transTimeout = defaultTransportTimeout
+	}
+
+	return &Raft{
+		dir:          dir,
+		cfg:          cfg,
+		transTimeout: transTimeout,
+	}
+}
 
 type Raft struct {
 	dir          string
@@ -31,6 +45,8 @@ type Raft struct {
 	store *raftboltdb.BoltStore
 
 	electNotify chan bool
+
+	coordinator.MetaClient
 }
 
 func (r *Raft) Open(ctx context.Context) error {

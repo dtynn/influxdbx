@@ -3,12 +3,16 @@ package run
 import (
 	"os"
 
+	"github.com/dtynn/influxdbx/service/cluster"
+	"github.com/dtynn/influxdbx/service/raft"
 	"github.com/influxdata/influxdb"
 	"github.com/influxdata/influxdb/services/meta"
 )
 
 type Server struct {
 	MetaClient *meta.Client
+	Cluster    *cluster.Cluster
+	Raft       *raft.Raft
 
 	tcpAddr           string
 	reportingDisabled bool
@@ -32,12 +36,15 @@ func NewServer(cfg *Config) (*Server, error) {
 	bind := cfg.BindAddress
 	s := &Server{
 		MetaClient: meta.NewClient(cfg.Meta),
+		Raft:       raft.NewRaft(cfg.Meta.Dir, cfg.Raft),
 
 		tcpAddr:           bind,
 		reportingDisabled: cfg.ReportingDisabled,
 
 		cfg: cfg,
 	}
+
+	s.Cluster = cluster.NewCluster(s.Raft)
 
 	return s, nil
 }
