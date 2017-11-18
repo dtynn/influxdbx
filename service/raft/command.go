@@ -10,14 +10,11 @@ const (
 
 	fsmCmdTypeCreateDatabase                    = 21
 	fsmCmdTypeCreateDatabaseWithRetentionPolicy = 22
-	fsmCmdTypeDatabase                          = 23
-	fsmCmdTypeDatabases                         = 24
-	fsmCmdTypeDropDatabase                      = 25
+	fsmCmdTypeDropDatabase                      = 23
 
 	fsmCmdTypeCreateRetentionPolicy = 31
 	fsmCmdTypeDropRetentionPolicy   = 32
-	fsmCmdTypeRetentionPolicy       = 33
-	fsmCmdTypeUpdateRetentionPolicy = 34
+	fsmCmdTypeUpdateRetentionPolicy = 33
 
 	fsmCmdTypeCreateSubscription = 41
 	fsmCmdTypeDropSubscription   = 42
@@ -27,9 +24,6 @@ const (
 	fsmCmdTypeSetAdminPrivilege = 53
 	fsmCmdTypeSetPrivilege      = 54
 	fsmCmdTypeUpdateUser        = 55
-	fsmCmdTypeUserPrivilege     = 56
-	fsmCmdTypeUserPrivileges    = 57
-	fsmCmdTypeUsers             = 58
 
 	fsmCmdTypeDropShard              = 61
 	fsmCmdTypeShardGroupsByTimeRange = 62

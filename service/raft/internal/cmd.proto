@@ -16,11 +16,3 @@ message DropUserCmd {
 	string name = 1;
 }
 
-message UserPrivilegeCmd {
-	string username = 1;
-	string database = 2;
-}
-
-message UserPrivilegesCmd {
-	string username = 1;
-}

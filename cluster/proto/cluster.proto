@@ -19,6 +19,11 @@ message Node {
 	string address = 2;
 }
 
+message Leader {
+	bool available = 1;
+	string address = 2;
+}
+
 message Result {
 	Code code = 1;
 	string message = 2;
@@ -30,7 +35,7 @@ message ClusterJoinReq {
 
 message ClusterJoinResp {
 	Code code = 1;
-	Node leader = 2;
+	Leader leader = 2;
 }
 
 message ClusterRemoveReq {
@@ -39,5 +44,5 @@ message ClusterRemoveReq {
 
 message ClusterRemoveResp {
 	Code code = 1;
-	Node leader = 2;
+	Leader leader = 2;
 }

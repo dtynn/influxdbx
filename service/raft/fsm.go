@@ -28,15 +28,6 @@ func (f *FSM) Apply(l *raft.Log) interface{} {
 	case fsmCmdTypeDropUser:
 		return f.applyDropUser(buf)
 
-	case fsmCmdTypeUsers:
-		return f.applyUsers(buf)
-
-	case fsmCmdTypeUserPrivilege:
-		return f.applyUserPrivilege(buf)
-
-	case fsmCmdTypeUserPrivileges:
-		return f.applyUserPrivileges(buf)
-
 	default:
 		return newFsmCmdResponse(nil, fmt.Errorf("unknown cmd type %v", cmdType))
 	}
@@ -72,33 +63,6 @@ func (f *FSM) applyDropUser(buf []byte) fsmCmdResponse {
 	err := f.MetaClient.DropUser(cmd.GetName())
 
 	return newFsmCmdResponse(nil, err)
-}
-
-func (f *FSM) applyUsers(buf []byte) fsmCmdResponse {
-	res := f.MetaClient.Users()
-	return newFsmCmdResponse(res, nil)
-}
-
-func (f *FSM) applyUserPrivilege(buf []byte) fsmCmdResponse {
-	var cmd internal.UserPrivilegeCmd
-	if err := proto.Unmarshal(buf, &cmd); err != nil {
-		panic(fmt.Errorf("malformed user privilege cmd %s", err))
-	}
-
-	res, err := f.MetaClient.UserPrivilege(cmd.GetUsername(), cmd.GetDatabase())
-
-	return newFsmCmdResponse(res, err)
-}
-
-func (f *FSM) applyUserPrivileges(buf []byte) fsmCmdResponse {
-	var cmd internal.UserPrivilegesCmd
-	if err := proto.Unmarshal(buf, &cmd); err != nil {
-		panic(fmt.Errorf("malformed user privileges cmd %s", err))
-	}
-
-	res, err := f.MetaClient.UserPrivileges(cmd.GetUsername())
-
-	return newFsmCmdResponse(res, err)
 }
 
 func (f *FSM) Snapshot() (raft.FSMSnapshot, error) {

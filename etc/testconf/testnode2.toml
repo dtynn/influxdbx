@@ -1,0 +1,10 @@
+bind-address = "127.0.0.1:18118"
+
+[meta]
+dir = "./etc/testnode2"
+
+[raft]
+logging-enabled = true
+join = [
+	"127.0.0.1:18117",
+]

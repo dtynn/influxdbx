@@ -1,0 +1,8 @@
+bind-address = "127.0.0.1:18117"
+
+[meta]
+dir = "./etc/testnode1"
+
+[raft]
+bootstrap = true
+logging-enabled = true
