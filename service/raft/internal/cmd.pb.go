@@ -8,9 +8,26 @@ It is generated from these files:
 	cmd.proto
 
 It has these top-level messages:
+	OptionalInt64
+	OptionalString
+	RetentionPolicySpec
+	RetentionPolicyUpdate
+	CreateContinuousQueryCmd
+	DropContinuousQueryCmd
+	CreateDatabaseCmd
+	CreateDatabaseWithRetentionPolicyCmd
+	DropDatabaseCmd
+	CreateRetentionPolicyCmd
+	DropRetentionPolicyCmd
+	UpdateRetentionPolicyCmd
+	CreateSubscriptionCmd
+	DropSubscriptionCmd
 	CreateUserCmd
-	UpdateUserCmd
 	DropUserCmd
+	UpdateUserCmd
+	SetAdminPrivilegeCmd
+	SetPrivilegeCmd
+	DropShardCmd
 */
 package internal
 
@@ -29,6 +46,413 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
 
+type OptionalInt64 struct {
+	Val int64 `protobuf:"varint,1,opt,name=val" json:"val,omitempty"`
+}
+
+func (m *OptionalInt64) Reset()                    { *m = OptionalInt64{} }
+func (m *OptionalInt64) String() string            { return proto.CompactTextString(m) }
+func (*OptionalInt64) ProtoMessage()               {}
+func (*OptionalInt64) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{0} }
+
+func (m *OptionalInt64) GetVal() int64 {
+	if m != nil {
+		return m.Val
+	}
+	return 0
+}
+
+type OptionalString struct {
+	Val string `protobuf:"bytes,1,opt,name=val" json:"val,omitempty"`
+}
+
+func (m *OptionalString) Reset()                    { *m = OptionalString{} }
+func (m *OptionalString) String() string            { return proto.CompactTextString(m) }
+func (*OptionalString) ProtoMessage()               {}
+func (*OptionalString) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{1} }
+
+func (m *OptionalString) GetVal() string {
+	if m != nil {
+		return m.Val
+	}
+	return ""
+}
+
+type RetentionPolicySpec struct {
+	Name               string         `protobuf:"bytes,1,opt,name=name" json:"name,omitempty"`
+	ReplicaN           *OptionalInt64 `protobuf:"bytes,2,opt,name=replicaN" json:"replicaN,omitempty"`
+	Duration           *OptionalInt64 `protobuf:"bytes,3,opt,name=duration" json:"duration,omitempty"`
+	ShardGroupDuration int64          `protobuf:"varint,4,opt,name=ShardGroupDuration" json:"ShardGroupDuration,omitempty"`
+}
+
+func (m *RetentionPolicySpec) Reset()                    { *m = RetentionPolicySpec{} }
+func (m *RetentionPolicySpec) String() string            { return proto.CompactTextString(m) }
+func (*RetentionPolicySpec) ProtoMessage()               {}
+func (*RetentionPolicySpec) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{2} }
+
+func (m *RetentionPolicySpec) GetName() string {
+	if m != nil {
+		return m.Name
+	}
+	return ""
+}
+
+func (m *RetentionPolicySpec) GetReplicaN() *OptionalInt64 {
+	if m != nil {
+		return m.ReplicaN
+	}
+	return nil
+}
+
+func (m *RetentionPolicySpec) GetDuration() *OptionalInt64 {
+	if m != nil {
+		return m.Duration
+	}
+	return nil
+}
+
+func (m *RetentionPolicySpec) GetShardGroupDuration() int64 {
+	if m != nil {
+		return m.ShardGroupDuration
+	}
+	return 0
+}
+
+type RetentionPolicyUpdate struct {
+	Name               *OptionalString `protobuf:"bytes,1,opt,name=name" json:"name,omitempty"`
+	ReplicaN           *OptionalInt64  `protobuf:"bytes,2,opt,name=replicaN" json:"replicaN,omitempty"`
+	Duration           *OptionalInt64  `protobuf:"bytes,3,opt,name=duration" json:"duration,omitempty"`
+	ShardGroupDuration *OptionalInt64  `protobuf:"bytes,4,opt,name=ShardGroupDuration" json:"ShardGroupDuration,omitempty"`
+}
+
+func (m *RetentionPolicyUpdate) Reset()                    { *m = RetentionPolicyUpdate{} }
+func (m *RetentionPolicyUpdate) String() string            { return proto.CompactTextString(m) }
+func (*RetentionPolicyUpdate) ProtoMessage()               {}
+func (*RetentionPolicyUpdate) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{3} }
+
+func (m *RetentionPolicyUpdate) GetName() *OptionalString {
+	if m != nil {
+		return m.Name
+	}
+	return nil
+}
+
+func (m *RetentionPolicyUpdate) GetReplicaN() *OptionalInt64 {
+	if m != nil {
+		return m.ReplicaN
+	}
+	return nil
+}
+
+func (m *RetentionPolicyUpdate) GetDuration() *OptionalInt64 {
+	if m != nil {
+		return m.Duration
+	}
+	return nil
+}
+
+func (m *RetentionPolicyUpdate) GetShardGroupDuration() *OptionalInt64 {
+	if m != nil {
+		return m.ShardGroupDuration
+	}
+	return nil
+}
+
+// continuous query cmd
+type CreateContinuousQueryCmd struct {
+	Database string `protobuf:"bytes,1,opt,name=database" json:"database,omitempty"`
+	Name     string `protobuf:"bytes,2,opt,name=name" json:"name,omitempty"`
+	Query    string `protobuf:"bytes,3,opt,name=query" json:"query,omitempty"`
+}
+
+func (m *CreateContinuousQueryCmd) Reset()                    { *m = CreateContinuousQueryCmd{} }
+func (m *CreateContinuousQueryCmd) String() string            { return proto.CompactTextString(m) }
+func (*CreateContinuousQueryCmd) ProtoMessage()               {}
+func (*CreateContinuousQueryCmd) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{4} }
+
+func (m *CreateContinuousQueryCmd) GetDatabase() string {
+	if m != nil {
+		return m.Database
+	}
+	return ""
+}
+
+func (m *CreateContinuousQueryCmd) GetName() string {
+	if m != nil {
+		return m.Name
+	}
+	return ""
+}
+
+func (m *CreateContinuousQueryCmd) GetQuery() string {
+	if m != nil {
+		return m.Query
+	}
+	return ""
+}
+
+type DropContinuousQueryCmd struct {
+	Database string `protobuf:"bytes,1,opt,name=database" json:"database,omitempty"`
+	Name     string `protobuf:"bytes,2,opt,name=name" json:"name,omitempty"`
+}
+
+func (m *DropContinuousQueryCmd) Reset()                    { *m = DropContinuousQueryCmd{} }
+func (m *DropContinuousQueryCmd) String() string            { return proto.CompactTextString(m) }
+func (*DropContinuousQueryCmd) ProtoMessage()               {}
+func (*DropContinuousQueryCmd) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{5} }
+
+func (m *DropContinuousQueryCmd) GetDatabase() string {
+	if m != nil {
+		return m.Database
+	}
+	return ""
+}
+
+func (m *DropContinuousQueryCmd) GetName() string {
+	if m != nil {
+		return m.Name
+	}
+	return ""
+}
+
+// database cmd
+type CreateDatabaseCmd struct {
+	Name string `protobuf:"bytes,1,opt,name=name" json:"name,omitempty"`
+}
+
+func (m *CreateDatabaseCmd) Reset()                    { *m = CreateDatabaseCmd{} }
+func (m *CreateDatabaseCmd) String() string            { return proto.CompactTextString(m) }
+func (*CreateDatabaseCmd) ProtoMessage()               {}
+func (*CreateDatabaseCmd) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{6} }
+
+func (m *CreateDatabaseCmd) GetName() string {
+	if m != nil {
+		return m.Name
+	}
+	return ""
+}
+
+type CreateDatabaseWithRetentionPolicyCmd struct {
+	Name string               `protobuf:"bytes,1,opt,name=name" json:"name,omitempty"`
+	Spec *RetentionPolicySpec `protobuf:"bytes,2,opt,name=spec" json:"spec,omitempty"`
+}
+
+func (m *CreateDatabaseWithRetentionPolicyCmd) Reset()         { *m = CreateDatabaseWithRetentionPolicyCmd{} }
+func (m *CreateDatabaseWithRetentionPolicyCmd) String() string { return proto.CompactTextString(m) }
+func (*CreateDatabaseWithRetentionPolicyCmd) ProtoMessage()    {}
+func (*CreateDatabaseWithRetentionPolicyCmd) Descriptor() ([]byte, []int) {
+	return fileDescriptor0, []int{7}
+}
+
+func (m *CreateDatabaseWithRetentionPolicyCmd) GetName() string {
+	if m != nil {
+		return m.Name
+	}
+	return ""
+}
+
+func (m *CreateDatabaseWithRetentionPolicyCmd) GetSpec() *RetentionPolicySpec {
+	if m != nil {
+		return m.Spec
+	}
+	return nil
+}
+
+type DropDatabaseCmd struct {
+	Name string `protobuf:"bytes,1,opt,name=name" json:"name,omitempty"`
+}
+
+func (m *DropDatabaseCmd) Reset()                    { *m = DropDatabaseCmd{} }
+func (m *DropDatabaseCmd) String() string            { return proto.CompactTextString(m) }
+func (*DropDatabaseCmd) ProtoMessage()               {}
+func (*DropDatabaseCmd) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{8} }
+
+func (m *DropDatabaseCmd) GetName() string {
+	if m != nil {
+		return m.Name
+	}
+	return ""
+}
+
+// retention policy
+type CreateRetentionPolicyCmd struct {
+	Database    string               `protobuf:"bytes,1,opt,name=database" json:"database,omitempty"`
+	Spec        *RetentionPolicySpec `protobuf:"bytes,2,opt,name=spec" json:"spec,omitempty"`
+	MakeDefault bool                 `protobuf:"varint,3,opt,name=makeDefault" json:"makeDefault,omitempty"`
+}
+
+func (m *CreateRetentionPolicyCmd) Reset()                    { *m = CreateRetentionPolicyCmd{} }
+func (m *CreateRetentionPolicyCmd) String() string            { return proto.CompactTextString(m) }
+func (*CreateRetentionPolicyCmd) ProtoMessage()               {}
+func (*CreateRetentionPolicyCmd) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{9} }
+
+func (m *CreateRetentionPolicyCmd) GetDatabase() string {
+	if m != nil {
+		return m.Database
+	}
+	return ""
+}
+
+func (m *CreateRetentionPolicyCmd) GetSpec() *RetentionPolicySpec {
+	if m != nil {
+		return m.Spec
+	}
+	return nil
+}
+
+func (m *CreateRetentionPolicyCmd) GetMakeDefault() bool {
+	if m != nil {
+		return m.MakeDefault
+	}
+	return false
+}
+
+type DropRetentionPolicyCmd struct {
+	Database string `protobuf:"bytes,1,opt,name=database" json:"database,omitempty"`
+	Name     string `protobuf:"bytes,2,opt,name=name" json:"name,omitempty"`
+}
+
+func (m *DropRetentionPolicyCmd) Reset()                    { *m = DropRetentionPolicyCmd{} }
+func (m *DropRetentionPolicyCmd) String() string            { return proto.CompactTextString(m) }
+func (*DropRetentionPolicyCmd) ProtoMessage()               {}
+func (*DropRetentionPolicyCmd) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{10} }
+
+func (m *DropRetentionPolicyCmd) GetDatabase() string {
+	if m != nil {
+		return m.Database
+	}
+	return ""
+}
+
+func (m *DropRetentionPolicyCmd) GetName() string {
+	if m != nil {
+		return m.Name
+	}
+	return ""
+}
+
+type UpdateRetentionPolicyCmd struct {
+	Database    string                 `protobuf:"bytes,1,opt,name=database" json:"database,omitempty"`
+	Name        string                 `protobuf:"bytes,2,opt,name=name" json:"name,omitempty"`
+	Update      *RetentionPolicyUpdate `protobuf:"bytes,3,opt,name=update" json:"update,omitempty"`
+	MakeDefault bool                   `protobuf:"varint,4,opt,name=makeDefault" json:"makeDefault,omitempty"`
+}
+
+func (m *UpdateRetentionPolicyCmd) Reset()                    { *m = UpdateRetentionPolicyCmd{} }
+func (m *UpdateRetentionPolicyCmd) String() string            { return proto.CompactTextString(m) }
+func (*UpdateRetentionPolicyCmd) ProtoMessage()               {}
+func (*UpdateRetentionPolicyCmd) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{11} }
+
+func (m *UpdateRetentionPolicyCmd) GetDatabase() string {
+	if m != nil {
+		return m.Database
+	}
+	return ""
+}
+
+func (m *UpdateRetentionPolicyCmd) GetName() string {
+	if m != nil {
+		return m.Name
+	}
+	return ""
+}
+
+func (m *UpdateRetentionPolicyCmd) GetUpdate() *RetentionPolicyUpdate {
+	if m != nil {
+		return m.Update
+	}
+	return nil
+}
+
+func (m *UpdateRetentionPolicyCmd) GetMakeDefault() bool {
+	if m != nil {
+		return m.MakeDefault
+	}
+	return false
+}
+
+// subsription
+type CreateSubscriptionCmd struct {
+	Database     string   `protobuf:"bytes,1,opt,name=database" json:"database,omitempty"`
+	Rp           string   `protobuf:"bytes,2,opt,name=rp" json:"rp,omitempty"`
+	Name         string   `protobuf:"bytes,3,opt,name=name" json:"name,omitempty"`
+	Mode         string   `protobuf:"bytes,4,opt,name=mode" json:"mode,omitempty"`
+	Destinations []string `protobuf:"bytes,5,rep,name=destinations" json:"destinations,omitempty"`
+}
+
+func (m *CreateSubscriptionCmd) Reset()                    { *m = CreateSubscriptionCmd{} }
+func (m *CreateSubscriptionCmd) String() string            { return proto.CompactTextString(m) }
+func (*CreateSubscriptionCmd) ProtoMessage()               {}
+func (*CreateSubscriptionCmd) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{12} }
+
+func (m *CreateSubscriptionCmd) GetDatabase() string {
+	if m != nil {
+		return m.Database
+	}
+	return ""
+}
+
+func (m *CreateSubscriptionCmd) GetRp() string {
+	if m != nil {
+		return m.Rp
+	}
+	return ""
+}
+
+func (m *CreateSubscriptionCmd) GetName() string {
+	if m != nil {
+		return m.Name
+	}
+	return ""
+}
+
+func (m *CreateSubscriptionCmd) GetMode() string {
+	if m != nil {
+		return m.Mode
+	}
+	return ""
+}
+
+func (m *CreateSubscriptionCmd) GetDestinations() []string {
+	if m != nil {
+		return m.Destinations
+	}
+	return nil
+}
+
+type DropSubscriptionCmd struct {
+	Database string `protobuf:"bytes,1,opt,name=database" json:"database,omitempty"`
+	Rp       string `protobuf:"bytes,2,opt,name=rp" json:"rp,omitempty"`
+	Name     string `protobuf:"bytes,3,opt,name=name" json:"name,omitempty"`
+}
+
+func (m *DropSubscriptionCmd) Reset()                    { *m = DropSubscriptionCmd{} }
+func (m *DropSubscriptionCmd) String() string            { return proto.CompactTextString(m) }
+func (*DropSubscriptionCmd) ProtoMessage()               {}
+func (*DropSubscriptionCmd) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{13} }
+
+func (m *DropSubscriptionCmd) GetDatabase() string {
+	if m != nil {
+		return m.Database
+	}
+	return ""
+}
+
+func (m *DropSubscriptionCmd) GetRp() string {
+	if m != nil {
+		return m.Rp
+	}
+	return ""
+}
+
+func (m *DropSubscriptionCmd) GetName() string {
+	if m != nil {
+		return m.Name
+	}
+	return ""
+}
+
+// user cmd
 type CreateUserCmd struct {
 	Name     string `protobuf:"bytes,1,opt,name=name" json:"name,omitempty"`
 	Password string `protobuf:"bytes,2,opt,name=password" json:"password,omitempty"`
@@ -38,7 +462,7 @@ type CreateUserCmd struct {
 func (m *CreateUserCmd) Reset()                    { *m = CreateUserCmd{} }
 func (m *CreateUserCmd) String() string            { return proto.CompactTextString(m) }
 func (*CreateUserCmd) ProtoMessage()               {}
-func (*CreateUserCmd) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{0} }
+func (*CreateUserCmd) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{14} }
 
 func (m *CreateUserCmd) GetName() string {
 	if m != nil {
@@ -61,6 +485,22 @@ func (m *CreateUserCmd) GetAdmin() bool {
 	return false
 }
 
+type DropUserCmd struct {
+	Name string `protobuf:"bytes,1,opt,name=name" json:"name,omitempty"`
+}
+
+func (m *DropUserCmd) Reset()                    { *m = DropUserCmd{} }
+func (m *DropUserCmd) String() string            { return proto.CompactTextString(m) }
+func (*DropUserCmd) ProtoMessage()               {}
+func (*DropUserCmd) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{15} }
+
+func (m *DropUserCmd) GetName() string {
+	if m != nil {
+		return m.Name
+	}
+	return ""
+}
+
 type UpdateUserCmd struct {
 	Name     string `protobuf:"bytes,1,opt,name=name" json:"name,omitempty"`
 	Password string `protobuf:"bytes,2,opt,name=password" json:"password,omitempty"`
@@ -69,7 +509,7 @@ type UpdateUserCmd struct {
 func (m *UpdateUserCmd) Reset()                    { *m = UpdateUserCmd{} }
 func (m *UpdateUserCmd) String() string            { return proto.CompactTextString(m) }
 func (*UpdateUserCmd) ProtoMessage()               {}
-func (*UpdateUserCmd) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{1} }
+func (*UpdateUserCmd) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{16} }
 
 func (m *UpdateUserCmd) GetName() string {
 	if m != nil {
@@ -85,39 +525,143 @@ func (m *UpdateUserCmd) GetPassword() string {
 	return ""
 }
 
-type DropUserCmd struct {
-	Name string `protobuf:"bytes,1,opt,name=name" json:"name,omitempty"`
+// user privilege
+type SetAdminPrivilegeCmd struct {
+	Username string `protobuf:"bytes,1,opt,name=username" json:"username,omitempty"`
+	Admin    bool   `protobuf:"varint,2,opt,name=admin" json:"admin,omitempty"`
 }
 
-func (m *DropUserCmd) Reset()                    { *m = DropUserCmd{} }
-func (m *DropUserCmd) String() string            { return proto.CompactTextString(m) }
-func (*DropUserCmd) ProtoMessage()               {}
-func (*DropUserCmd) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{2} }
+func (m *SetAdminPrivilegeCmd) Reset()                    { *m = SetAdminPrivilegeCmd{} }
+func (m *SetAdminPrivilegeCmd) String() string            { return proto.CompactTextString(m) }
+func (*SetAdminPrivilegeCmd) ProtoMessage()               {}
+func (*SetAdminPrivilegeCmd) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{17} }
 
-func (m *DropUserCmd) GetName() string {
+func (m *SetAdminPrivilegeCmd) GetUsername() string {
 	if m != nil {
-		return m.Name
+		return m.Username
 	}
 	return ""
 }
 
+func (m *SetAdminPrivilegeCmd) GetAdmin() bool {
+	if m != nil {
+		return m.Admin
+	}
+	return false
+}
+
+type SetPrivilegeCmd struct {
+	Username  string `protobuf:"bytes,1,opt,name=username" json:"username,omitempty"`
+	Database  string `protobuf:"bytes,2,opt,name=database" json:"database,omitempty"`
+	Privilege int64  `protobuf:"varint,3,opt,name=privilege" json:"privilege,omitempty"`
+}
+
+func (m *SetPrivilegeCmd) Reset()                    { *m = SetPrivilegeCmd{} }
+func (m *SetPrivilegeCmd) String() string            { return proto.CompactTextString(m) }
+func (*SetPrivilegeCmd) ProtoMessage()               {}
+func (*SetPrivilegeCmd) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{18} }
+
+func (m *SetPrivilegeCmd) GetUsername() string {
+	if m != nil {
+		return m.Username
+	}
+	return ""
+}
+
+func (m *SetPrivilegeCmd) GetDatabase() string {
+	if m != nil {
+		return m.Database
+	}
+	return ""
+}
+
+func (m *SetPrivilegeCmd) GetPrivilege() int64 {
+	if m != nil {
+		return m.Privilege
+	}
+	return 0
+}
+
+// shard
+type DropShardCmd struct {
+	Id uint64 `protobuf:"varint,1,opt,name=id" json:"id,omitempty"`
+}
+
+func (m *DropShardCmd) Reset()                    { *m = DropShardCmd{} }
+func (m *DropShardCmd) String() string            { return proto.CompactTextString(m) }
+func (*DropShardCmd) ProtoMessage()               {}
+func (*DropShardCmd) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{19} }
+
+func (m *DropShardCmd) GetId() uint64 {
+	if m != nil {
+		return m.Id
+	}
+	return 0
+}
+
 func init() {
+	proto.RegisterType((*OptionalInt64)(nil), "internal.OptionalInt64")
+	proto.RegisterType((*OptionalString)(nil), "internal.OptionalString")
+	proto.RegisterType((*RetentionPolicySpec)(nil), "internal.RetentionPolicySpec")
+	proto.RegisterType((*RetentionPolicyUpdate)(nil), "internal.RetentionPolicyUpdate")
+	proto.RegisterType((*CreateContinuousQueryCmd)(nil), "internal.CreateContinuousQueryCmd")
+	proto.RegisterType((*DropContinuousQueryCmd)(nil), "internal.DropContinuousQueryCmd")
+	proto.RegisterType((*CreateDatabaseCmd)(nil), "internal.CreateDatabaseCmd")
+	proto.RegisterType((*CreateDatabaseWithRetentionPolicyCmd)(nil), "internal.CreateDatabaseWithRetentionPolicyCmd")
+	proto.RegisterType((*DropDatabaseCmd)(nil), "internal.DropDatabaseCmd")
+	proto.RegisterType((*CreateRetentionPolicyCmd)(nil), "internal.CreateRetentionPolicyCmd")
+	proto.RegisterType((*DropRetentionPolicyCmd)(nil), "internal.DropRetentionPolicyCmd")
+	proto.RegisterType((*UpdateRetentionPolicyCmd)(nil), "internal.UpdateRetentionPolicyCmd")
+	proto.RegisterType((*CreateSubscriptionCmd)(nil), "internal.CreateSubscriptionCmd")
+	proto.RegisterType((*DropSubscriptionCmd)(nil), "internal.DropSubscriptionCmd")
 	proto.RegisterType((*CreateUserCmd)(nil), "internal.CreateUserCmd")
-	proto.RegisterType((*UpdateUserCmd)(nil), "internal.UpdateUserCmd")
 	proto.RegisterType((*DropUserCmd)(nil), "internal.DropUserCmd")
+	proto.RegisterType((*UpdateUserCmd)(nil), "internal.UpdateUserCmd")
+	proto.RegisterType((*SetAdminPrivilegeCmd)(nil), "internal.SetAdminPrivilegeCmd")
+	proto.RegisterType((*SetPrivilegeCmd)(nil), "internal.SetPrivilegeCmd")
+	proto.RegisterType((*DropShardCmd)(nil), "internal.DropShardCmd")
 }
 
 func init() { proto.RegisterFile("cmd.proto", fileDescriptor0) }
 
 var fileDescriptor0 = []byte{
-	// 139 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0xe2, 0x4c, 0xce, 0x4d, 0xd1,
-	0x2b, 0x28, 0xca, 0x2f, 0xc9, 0x17, 0xe2, 0xc8, 0xcc, 0x2b, 0x49, 0x2d, 0xca, 0x4b, 0xcc, 0x51,
-	0x0a, 0xe5, 0xe2, 0x75, 0x2e, 0x4a, 0x4d, 0x2c, 0x49, 0x0d, 0x2d, 0x4e, 0x2d, 0x72, 0xce, 0x4d,
-	0x11, 0x12, 0xe2, 0x62, 0xc9, 0x4b, 0xcc, 0x4d, 0x95, 0x60, 0x54, 0x60, 0xd4, 0xe0, 0x0c, 0x02,
-	0xb3, 0x85, 0xa4, 0xb8, 0x38, 0x0a, 0x12, 0x8b, 0x8b, 0xcb, 0xf3, 0x8b, 0x52, 0x24, 0x98, 0xc0,
-	0xe2, 0x70, 0xbe, 0x90, 0x08, 0x17, 0x6b, 0x62, 0x4a, 0x6e, 0x66, 0x9e, 0x04, 0xb3, 0x02, 0xa3,
-	0x06, 0x47, 0x10, 0x84, 0xa3, 0x64, 0xcf, 0xc5, 0x1b, 0x5a, 0x90, 0x42, 0xbe, 0xb1, 0x4a, 0x8a,
-	0x5c, 0xdc, 0x2e, 0x45, 0xf9, 0x05, 0x78, 0xb4, 0x27, 0xb1, 0x81, 0xfd, 0x62, 0x0c, 0x08, 0x00,
-	0x00, 0xff, 0xff, 0xe5, 0x95, 0xf3, 0x25, 0xd8, 0x00, 0x00, 0x00,
+	// 607 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xbc, 0x55, 0xcb, 0x6e, 0x13, 0x31,
+	0x14, 0xd5, 0x3c, 0x5a, 0x65, 0x6e, 0xfa, 0x00, 0xb7, 0x85, 0x51, 0xc5, 0x23, 0xb5, 0x40, 0x74,
+	0x81, 0x22, 0xd1, 0x22, 0x58, 0x22, 0xd4, 0x48, 0x2d, 0x1b, 0x28, 0x33, 0x8a, 0xd8, 0xe2, 0x8e,
+	0x4d, 0x6b, 0x31, 0x0f, 0xe3, 0xf1, 0x14, 0xf5, 0x1b, 0x58, 0xf0, 0x15, 0x7c, 0x09, 0x3f, 0xc5,
+	0x12, 0xd9, 0xf3, 0xe8, 0x24, 0x9d, 0x24, 0x94, 0x22, 0x76, 0xb6, 0xe7, 0xdc, 0x73, 0xcf, 0xb9,
+	0xc7, 0x4e, 0xc0, 0x8b, 0x12, 0x3a, 0x14, 0x32, 0x53, 0x19, 0xea, 0xf1, 0x54, 0x31, 0x99, 0x92,
+	0x18, 0xef, 0xc0, 0xea, 0x3b, 0xa1, 0x78, 0x96, 0x92, 0xf8, 0x4d, 0xaa, 0x5e, 0x3c, 0x47, 0xb7,
+	0xc0, 0x39, 0x27, 0xb1, 0x6f, 0x0d, 0xac, 0x5d, 0x27, 0xd0, 0x4b, 0x8c, 0x61, 0xad, 0x86, 0x84,
+	0x4a, 0xf2, 0xf4, 0xb4, 0x8d, 0xf1, 0x4a, 0xcc, 0x4f, 0x0b, 0x36, 0x02, 0xa6, 0x58, 0xaa, 0x71,
+	0xc7, 0x59, 0xcc, 0xa3, 0x8b, 0x50, 0xb0, 0x08, 0x21, 0x70, 0x53, 0x92, 0xb0, 0x0a, 0x6a, 0xd6,
+	0x68, 0x1f, 0x7a, 0x92, 0x89, 0x98, 0x47, 0xe4, 0xad, 0x6f, 0x0f, 0xac, 0xdd, 0xfe, 0xde, 0xdd,
+	0x61, 0xad, 0x67, 0x38, 0x21, 0x26, 0x68, 0x80, 0xba, 0x88, 0x16, 0x92, 0xe8, 0x8f, 0xbe, 0xb3,
+	0xa0, 0xa8, 0x06, 0xa2, 0x21, 0xa0, 0xf0, 0x8c, 0x48, 0x7a, 0x28, 0xb3, 0x42, 0x8c, 0xea, 0x72,
+	0xd7, 0x58, 0xeb, 0xf8, 0x82, 0x7f, 0x59, 0xb0, 0x35, 0xe5, 0x62, 0x2c, 0x28, 0x51, 0x0c, 0x3d,
+	0x6d, 0xf9, 0xe8, 0xef, 0xf9, 0x57, 0x5b, 0x97, 0x93, 0xf9, 0xef, 0x0e, 0x0f, 0x67, 0x3a, 0x9c,
+	0x53, 0xde, 0x65, 0xfd, 0x23, 0xf8, 0x07, 0x92, 0x11, 0xc5, 0x0e, 0xb2, 0x54, 0xf1, 0xb4, 0xc8,
+	0x8a, 0xfc, 0x7d, 0xc1, 0xe4, 0xc5, 0x41, 0x42, 0xd1, 0x36, 0xf4, 0x28, 0x51, 0xe4, 0x84, 0xe4,
+	0x75, 0x90, 0xcd, 0xbe, 0x09, 0xd8, 0x6e, 0x05, 0xbc, 0x09, 0x4b, 0x5f, 0x74, 0xad, 0xb1, 0xe1,
+	0x05, 0xe5, 0x06, 0x1f, 0xc1, 0x9d, 0x91, 0xcc, 0xc4, 0xcd, 0xf9, 0xf1, 0x13, 0xb8, 0x5d, 0x6a,
+	0x1d, 0x55, 0x28, 0x4d, 0xd2, 0x71, 0xd3, 0x70, 0x02, 0x8f, 0x26, 0x81, 0x1f, 0xb8, 0x3a, 0x9b,
+	0x0a, 0x78, 0x46, 0x2d, 0x7a, 0x06, 0x6e, 0x2e, 0x58, 0x54, 0xe5, 0x77, 0xff, 0x72, 0x96, 0x1d,
+	0xd7, 0x3c, 0x30, 0x50, 0xfc, 0x18, 0xd6, 0xb5, 0xc3, 0x45, 0xaa, 0xbe, 0x59, 0xf5, 0xac, 0x3b,
+	0xa4, 0xcc, 0x9b, 0xc5, 0xf5, 0x25, 0xa1, 0x01, 0xf4, 0x13, 0xf2, 0x99, 0x8d, 0xd8, 0x27, 0x52,
+	0xc4, 0xca, 0x04, 0xd2, 0x0b, 0xda, 0x47, 0x75, 0x2c, 0xd7, 0x94, 0xd2, 0x15, 0xcb, 0x0f, 0x0b,
+	0xfc, 0xf2, 0xb9, 0xdc, 0x9c, 0x0c, 0xbd, 0x84, 0xe5, 0xc2, 0x70, 0x55, 0x6f, 0xe1, 0xe1, 0x4c,
+	0xb7, 0x55, 0xcb, 0x0a, 0x3e, 0xed, 0xd8, 0xbd, 0xea, 0xf8, 0xbb, 0x05, 0x5b, 0xe5, 0xfc, 0xc3,
+	0xe2, 0x24, 0x8f, 0x24, 0x37, 0x8f, 0x63, 0x91, 0xc8, 0x35, 0xb0, 0xa5, 0xa8, 0x24, 0xda, 0x52,
+	0x34, 0xa2, 0x9d, 0x96, 0x68, 0x04, 0x6e, 0x92, 0x51, 0x66, 0x9a, 0x7a, 0x81, 0x59, 0x23, 0x0c,
+	0x2b, 0x94, 0xe5, 0x8a, 0xa7, 0xe6, 0x9d, 0xe5, 0xfe, 0xd2, 0xc0, 0xd9, 0xf5, 0x82, 0x89, 0x33,
+	0x3c, 0x86, 0x0d, 0x9d, 0xc1, 0x3f, 0x96, 0x83, 0xc7, 0xb0, 0x5a, 0xfa, 0x1c, 0xe7, 0x4c, 0xce,
+	0xba, 0xe7, 0xdb, 0xd0, 0x13, 0x24, 0xcf, 0xbf, 0x66, 0x92, 0x56, 0x74, 0xcd, 0x5e, 0x3f, 0x64,
+	0x42, 0x13, 0x9e, 0x56, 0xf7, 0xa6, 0xdc, 0xe0, 0x1d, 0xe8, 0x6b, 0xb5, 0x73, 0x48, 0xf1, 0x2b,
+	0x58, 0x2d, 0x63, 0xf9, 0xcb, 0xce, 0xf8, 0x08, 0x36, 0x43, 0xa6, 0x5e, 0xeb, 0x7e, 0xc7, 0x92,
+	0x9f, 0xf3, 0x98, 0x9d, 0xb2, 0x6a, 0x24, 0x45, 0xae, 0xaf, 0x41, 0xc3, 0xd5, 0xec, 0x2f, 0xd5,
+	0xda, 0x6d, 0xb5, 0xa7, 0xb0, 0x1e, 0x32, 0xf5, 0xc7, 0x24, 0xed, 0x99, 0xdb, 0x53, 0x33, 0xbf,
+	0x07, 0x9e, 0xa8, 0x79, 0xcc, 0x48, 0x9c, 0xe0, 0xf2, 0x00, 0x3f, 0x80, 0x15, 0x13, 0xa2, 0xfe,
+	0x6d, 0xd5, 0x5d, 0xd6, 0xc0, 0xe6, 0xd4, 0xf0, 0xbb, 0x81, 0xcd, 0xe9, 0xc9, 0xb2, 0xf9, 0xeb,
+	0xdd, 0xff, 0x1d, 0x00, 0x00, 0xff, 0xff, 0x62, 0xf1, 0x1f, 0x00, 0x87, 0x07, 0x00, 0x00,
 }

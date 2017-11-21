@@ -1,10 +1,97 @@
 syntax = "proto3";
 package internal;
 
+message OptionalInt64 {
+	int64 val = 1;
+}
+
+message OptionalString {
+	string val = 1;
+}
+
+message RetentionPolicySpec {
+	string name = 1;
+	OptionalInt64 replicaN = 2;
+	OptionalInt64 duration = 3;
+	int64 ShardGroupDuration = 4;
+}
+
+message RetentionPolicyUpdate {
+	OptionalString name = 1;
+	OptionalInt64 replicaN = 2;
+	OptionalInt64 duration = 3;
+	OptionalInt64 ShardGroupDuration = 4;
+}
+
+// continuous query cmd
+message CreateContinuousQueryCmd {
+	string database = 1;
+	string name = 2;
+	string query = 3;
+}
+
+message DropContinuousQueryCmd {
+	string database = 1;
+	string name = 2;
+}
+
+// database cmd
+message CreateDatabaseCmd {
+	string name = 1;
+}
+
+message CreateDatabaseWithRetentionPolicyCmd {
+	string name = 1;
+	RetentionPolicySpec spec = 2;
+}
+
+message DropDatabaseCmd {
+	string name = 1;
+}
+
+// retention policy
+message CreateRetentionPolicyCmd {
+	string database = 1;
+	RetentionPolicySpec spec = 2;
+	bool makeDefault = 3;
+}
+
+message DropRetentionPolicyCmd {
+	string database = 1;
+	string name = 2;
+}
+
+message UpdateRetentionPolicyCmd {
+	string database = 1;
+	string name = 2;
+	RetentionPolicyUpdate update = 3;
+	bool makeDefault = 4;
+}
+
+// subsription
+message CreateSubscriptionCmd {
+	string database = 1;
+	string rp = 2;
+	string name = 3;
+	string mode = 4;
+	repeated string destinations = 5;
+}
+
+message DropSubscriptionCmd {
+	string database = 1;
+	string rp = 2;
+	string name = 3;
+}
+
+// user cmd
 message CreateUserCmd {
 	string name = 1;
 	string password = 2;
 	bool admin = 3;
+}
+
+message DropUserCmd {
+	string name = 1;
 }
 
 message UpdateUserCmd {
@@ -12,7 +99,19 @@ message UpdateUserCmd {
 	string password = 2;
 }
 
-message DropUserCmd {
-	string name = 1;
+// user privilege
+message SetAdminPrivilegeCmd {
+	string username =1;
+	bool admin = 2;
 }
 
+message SetPrivilegeCmd {
+	string username = 1;
+	string database = 2;
+	int64 privilege = 3;
+}
+
+// shard
+message DropShardCmd {
+	uint64 id = 1;
+}
