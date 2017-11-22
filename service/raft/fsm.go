@@ -6,17 +6,25 @@ import (
 
 	"github.com/dtynn/influxdbx/service/raft/internal"
 	"github.com/hashicorp/raft"
-	"github.com/influxdata/influxdb/coordinator"
+	"github.com/influxdata/influxdb/services/meta"
 	"github.com/influxdata/influxql"
 )
 
 type FSM struct {
-	coordinator.MetaClient
+	MetaClient *meta.Client
+	queryMgr   *localQueryManager
 }
 
 func (f *FSM) Apply(l *raft.Log) interface{} {
-	cmdType := fsmCmdType(l.Data[0])
-	buf := l.Data[1:]
+	cmdType, id, buf := fsmCmdRead(l.Data)
+	if id != nil {
+		queryID := *id
+		if !f.queryMgr.Check(queryID) {
+			return newFsmCmdResponse(nil, nil)
+		}
+
+		defer f.queryMgr.Done(queryID)
+	}
 
 	switch cmdType {
 	// continuous query

@@ -11,7 +11,7 @@ import (
 	"github.com/dtynn/influxdbx/cluster/proto"
 	"github.com/hashicorp/raft"
 	"github.com/hashicorp/raft-boltdb"
-	"github.com/influxdata/influxdb/coordinator"
+	"github.com/influxdata/influxdb/services/meta"
 	"go.uber.org/zap"
 )
 
@@ -53,7 +53,7 @@ type Raft struct {
 
 	electNotify chan bool
 
-	coordinator.MetaClient
+	MetaClient *meta.Client
 }
 
 func (r *Raft) Open() error {

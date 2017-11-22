@@ -23,6 +23,11 @@ message RetentionPolicyUpdate {
 	OptionalInt64 ShardGroupDuration = 4;
 }
 
+// acquire lease
+message AcquireLeaseCmd {
+	string name = 1;
+}
+
 // continuous query cmd
 message CreateContinuousQueryCmd {
 	string database = 1;
@@ -36,6 +41,10 @@ message DropContinuousQueryCmd {
 }
 
 // database cmd
+message DatabaseCmd {
+	string name = 1;
+}
+
 message CreateDatabaseCmd {
 	string name = 1;
 }
@@ -54,6 +63,11 @@ message CreateRetentionPolicyCmd {
 	string database = 1;
 	RetentionPolicySpec spec = 2;
 	bool makeDefault = 3;
+}
+
+message RetentionPolicyCmd {
+	string database = 1;
+	string name = 2;
 }
 
 message DropRetentionPolicyCmd {
@@ -84,6 +98,10 @@ message DropSubscriptionCmd {
 }
 
 // user cmd
+message UserCmd {
+	string name = 1;
+}
+
 message CreateUserCmd {
 	string name = 1;
 	string password = 2;
@@ -111,7 +129,55 @@ message SetPrivilegeCmd {
 	int64 privilege = 3;
 }
 
+message UserPrivilegesCmd {
+	string username = 1;
+}
+
+message UserPrivilegeCmd {
+	string username = 1;
+	string database = 2;
+}
+
+message AuthenticateCmd {
+	string username = 1;
+	string password = 2;
+}
+
 // shard
+message ShardGroupsByTimeRangeCmd {
+	string database = 1;
+	string policy = 2;
+	int64 tmin = 3;
+	int64 tmax = 4;
+}
+
+message ShardsByTimeRangeCmd {
+	bytes sourceData = 1;
+	int64 tmin = 2;
+	int64 tmax = 3;
+}
+
 message DropShardCmd {
+	uint64 id = 1;
+}
+
+message CreateShardGroupCmd {
+	string database = 1;
+	string policy = 2;
+	int64 timestamp = 3;
+}
+
+message DeleteShardGroupCmd {
+	string database = 1;
+	string policy = 2;
+	uint64 id = 3;
+}
+
+message PrecreateShardGroups {
+	int64 from = 1;
+	int64 to = 2;
+}
+
+message ShardOwnerCmd {
 	uint64 id = 1;
 }

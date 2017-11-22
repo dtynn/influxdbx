@@ -7,6 +7,7 @@ import (
 	"github.com/dtynn/influxdbx/service/raft/internal"
 	"github.com/gogo/protobuf/proto"
 	"github.com/influxdata/influxdb/services/meta"
+	"github.com/influxdata/influxdb/uuid"
 )
 
 type fsmCmdType byte
@@ -14,28 +15,47 @@ type fsmCmdType byte
 const (
 	fsmCmdTypeUnknown fsmCmdType = 0
 
-	fsmCmdTypeCreateContinuousQuery = 11
-	fsmCmdTypeDropContinuousQuery   = 12
+	fsmCmdTypeCreateDatabase                    = 1
+	fsmCmdTypeCreateDatabaseWithRetentionPolicy = 2
+	fsmCmdTypeDropDatabase                      = 3
+	fsmCmdTypeCreateRetentionPolicy             = 4
+	fsmCmdTypeDropRetentionPolicy               = 5
+	fsmCmdTypeUpdateRetentionPolicy             = 6
+	fsmCmdTypeCreateUser                        = 7
+	fsmCmdTypeUpdateUser                        = 8
+	fsmCmdTypeDropUser                          = 9
+	fsmCmdTypeSetPrivilege                      = 10
+	fsmCmdTypeSetAdminPrivilege                 = 11
+	fsmCmdTypeDropShard                         = 12
+	fsmCmdTypePruneShardGroups                  = 13
+	fsmCmdTypeCreateShardGroup                  = 14
+	fsmCmdTypeDeleteShardGroup                  = 15
+	fsmCmdTypePrecreateShardGroups              = 16
+	fsmCmdTypeCreateContinuousQuery             = 17
+	fsmCmdTypeDropContinuousQuery               = 18
+	fsmCmdTypeCreateSubscription                = 19
+	fsmCmdTypeDropSubscription                  = 20
 
-	fsmCmdTypeCreateDatabase                    = 21
-	fsmCmdTypeCreateDatabaseWithRetentionPolicy = 22
-	fsmCmdTypeDropDatabase                      = 23
-
-	fsmCmdTypeCreateRetentionPolicy = 31
-	fsmCmdTypeDropRetentionPolicy   = 32
-	fsmCmdTypeUpdateRetentionPolicy = 33
-
-	fsmCmdTypeCreateSubscription = 41
-	fsmCmdTypeDropSubscription   = 42
-
-	fsmCmdTypeCreateUser        = 51
-	fsmCmdTypeDropUser          = 52
-	fsmCmdTypeSetAdminPrivilege = 53
-	fsmCmdTypeSetPrivilege      = 54
-	fsmCmdTypeUpdateUser        = 55
-
-	fsmCmdTypeDropShard = 61
+	fsmCmdTypeAcquireLease           = 101
+	fsmCmdTypeClusterID              = 102
+	fsmCmdTypeDatabase               = 103
+	fsmCmdTypeDatabases              = 104
+	fsmCmdTypeRetentionPolicy        = 105
+	fsmCmdTypeUsers                  = 106
+	fsmCmdTypeUser                   = 107
+	fsmCmdTypeUserPrivileges         = 108
+	fsmCmdTypeUserPrivilege          = 109
+	fsmCmdTypeAdminUserExists        = 110
+	fsmCmdTypeUserCount              = 111
+	fsmCmdTypeShardIDs               = 112
+	fsmCmdTypeShardGroupsByTimeRange = 113
+	fsmCmdTypeShardsByTimeRange      = 114
+	fsmCmdTypeShardOwner             = 115
 )
+
+func (f fsmCmdType) isLocalQuery() bool {
+	return f/100 > 0
+}
 
 type fsmCmdResponse struct {
 	res interface{}
@@ -47,6 +67,59 @@ func newFsmCmdResponse(res interface{}, err error) fsmCmdResponse {
 		res: res,
 		err: err,
 	}
+}
+
+func fsmCmdMarshal(cmdType fsmCmdType, cmd proto.Message) ([]byte, *uuid.UUID, error) {
+	var b []byte
+	var err error
+
+	if cmd != nil {
+		b, err = proto.Marshal(cmd)
+		if err != nil {
+			return nil, nil, err
+		}
+	}
+
+	var idPtr *uuid.UUID
+
+	isLocalQuery := cmdType.isLocalQuery()
+
+	size := len(b) + 1
+	if isLocalQuery {
+		size += 16
+	}
+
+	bs := make([]byte, size)
+	bs[0] = byte(cmdType)
+
+	head := 1
+	if isLocalQuery {
+		head = 17
+		id := uuid.TimeUUID()
+		copy(bs[1:17], id[:])
+		idPtr = &id
+	}
+
+	copy(bs[head:], b)
+
+	return bs, idPtr, nil
+}
+
+func fsmCmdRead(data []byte) (t fsmCmdType, id *uuid.UUID, buf []byte) {
+	t = fsmCmdType(data[0])
+	head := 1
+
+	if t.isLocalQuery() {
+		var queryID uuid.UUID
+		copy(data[1:17], id[:])
+		id = &queryID
+
+		head = 17
+	}
+
+	buf = data[head:]
+
+	return
 }
 
 func protoCmdUnmarshal(buf []byte, cmd proto.Message) {
