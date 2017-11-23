@@ -6,6 +6,12 @@ import (
 	"github.com/influxdata/influxdb/uuid"
 )
 
+func newLocalQueryManager() *localQueryManager {
+	return &localQueryManager{
+		querys: map[uuid.UUID]struct{}{},
+	}
+}
+
 type localQueryManager struct {
 	mu     sync.RWMutex
 	querys map[uuid.UUID]struct{}

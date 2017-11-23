@@ -4,10 +4,14 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/dtynn/influxdbx/service/raft/internal"
+	"github.com/dtynn/influxdbx/raft/internal"
 	"github.com/gogo/protobuf/proto"
 	"github.com/influxdata/influxdb/services/meta"
 	"github.com/influxdata/influxdb/uuid"
+)
+
+const (
+	nanoi64 = int64(time.Nanosecond)
 )
 
 type fsmCmdType byte
@@ -15,42 +19,43 @@ type fsmCmdType byte
 const (
 	fsmCmdTypeUnknown fsmCmdType = 0
 
-	fsmCmdTypeCreateDatabase                    = 1
-	fsmCmdTypeCreateDatabaseWithRetentionPolicy = 2
-	fsmCmdTypeDropDatabase                      = 3
-	fsmCmdTypeCreateRetentionPolicy             = 4
-	fsmCmdTypeDropRetentionPolicy               = 5
-	fsmCmdTypeUpdateRetentionPolicy             = 6
-	fsmCmdTypeCreateUser                        = 7
-	fsmCmdTypeUpdateUser                        = 8
-	fsmCmdTypeDropUser                          = 9
-	fsmCmdTypeSetPrivilege                      = 10
-	fsmCmdTypeSetAdminPrivilege                 = 11
-	fsmCmdTypeDropShard                         = 12
-	fsmCmdTypePruneShardGroups                  = 13
-	fsmCmdTypeCreateShardGroup                  = 14
-	fsmCmdTypeDeleteShardGroup                  = 15
-	fsmCmdTypePrecreateShardGroups              = 16
-	fsmCmdTypeCreateContinuousQuery             = 17
-	fsmCmdTypeDropContinuousQuery               = 18
-	fsmCmdTypeCreateSubscription                = 19
-	fsmCmdTypeDropSubscription                  = 20
+	fsmCmdTypeMetaCreateDatabase                    = 1
+	fsmCmdTypeMetaCreateDatabaseWithRetentionPolicy = 2
+	fsmCmdTypeMetaDropDatabase                      = 3
+	fsmCmdTypeMetaCreateRetentionPolicy             = 4
+	fsmCmdTypeMetaDropRetentionPolicy               = 5
+	fsmCmdTypeMetaUpdateRetentionPolicy             = 6
+	fsmCmdTypeMetaCreateUser                        = 7
+	fsmCmdTypeMetaUpdateUser                        = 8
+	fsmCmdTypeMetaDropUser                          = 9
+	fsmCmdTypeMetaSetPrivilege                      = 10
+	fsmCmdTypeMetaSetAdminPrivilege                 = 11
+	fsmCmdTypeMetaDropShard                         = 12
+	fsmCmdTypeMetaPruneShardGroups                  = 13
+	fsmCmdTypeMetaCreateShardGroup                  = 14
+	fsmCmdTypeMetaDeleteShardGroup                  = 15
+	fsmCmdTypeMetaPrecreateShardGroups              = 16
+	fsmCmdTypeMetaCreateContinuousQuery             = 17
+	fsmCmdTypeMetaDropContinuousQuery               = 18
+	fsmCmdTypeMetaCreateSubscription                = 19
+	fsmCmdTypeMetaDropSubscription                  = 20
 
-	fsmCmdTypeAcquireLease           = 101
-	fsmCmdTypeClusterID              = 102
-	fsmCmdTypeDatabase               = 103
-	fsmCmdTypeDatabases              = 104
-	fsmCmdTypeRetentionPolicy        = 105
-	fsmCmdTypeUsers                  = 106
-	fsmCmdTypeUser                   = 107
-	fsmCmdTypeUserPrivileges         = 108
-	fsmCmdTypeUserPrivilege          = 109
-	fsmCmdTypeAdminUserExists        = 110
-	fsmCmdTypeUserCount              = 111
-	fsmCmdTypeShardIDs               = 112
-	fsmCmdTypeShardGroupsByTimeRange = 113
-	fsmCmdTypeShardsByTimeRange      = 114
-	fsmCmdTypeShardOwner             = 115
+	fsmCmdTypeMetaAcquireLease           = 101
+	fsmCmdTypeMetaClusterID              = 102
+	fsmCmdTypeMetaDatabase               = 103
+	fsmCmdTypeMetaDatabases              = 104
+	fsmCmdTypeMetaRetentionPolicy        = 105
+	fsmCmdTypeMetaUsers                  = 106
+	fsmCmdTypeMetaUser                   = 107
+	fsmCmdTypeMetaUserPrivileges         = 108
+	fsmCmdTypeMetaUserPrivilege          = 109
+	fsmCmdTypeMetaAdminUserExists        = 110
+	fsmCmdTypeMetaAuthenticate           = 111
+	fsmCmdTypeMetaUserCount              = 112
+	fsmCmdTypeMetaShardIDs               = 113
+	fsmCmdTypeMetaShardGroupsByTimeRange = 114
+	fsmCmdTypeMetaShardsByTimeRange      = 115
+	fsmCmdTypeMetaShardOwner             = 116
 )
 
 func (f fsmCmdType) isLocalQuery() bool {
@@ -211,4 +216,8 @@ func retentionPolicyUpdateMeta2Proto(update *meta.RetentionPolicyUpdate) *intern
 	}
 
 	return pUpdate
+}
+
+func nano2time(nano int64) time.Time {
+	return time.Unix(nano/nanoi64, nano%nanoi64)
 }

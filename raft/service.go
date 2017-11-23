@@ -12,6 +12,7 @@ import (
 	"github.com/hashicorp/raft"
 	"github.com/hashicorp/raft-boltdb"
 	"github.com/influxdata/influxdb/services/meta"
+	"github.com/influxdata/influxdb/tsdb"
 	"go.uber.org/zap"
 )
 
@@ -34,6 +35,7 @@ func NewRaft(dir string, cfg *Config) *Raft {
 		cfg:          cfg,
 		transTimeout: transTimeout,
 		logger:       zap.NewNop(),
+		queryMgr:     newLocalQueryManager(),
 	}
 }
 
@@ -43,6 +45,8 @@ type Raft struct {
 	transTimeout time.Duration
 
 	logger *zap.Logger
+
+	queryMgr *localQueryManager
 
 	net.Listener
 
@@ -54,6 +58,7 @@ type Raft struct {
 	electNotify chan bool
 
 	MetaClient *meta.Client
+	TSDBStore  *tsdb.Store
 }
 
 func (r *Raft) Open() error {
@@ -74,7 +79,7 @@ func (r *Raft) Open() error {
 		return err
 	}
 
-	fsm := &FSM{}
+	fsm := newFSM(r)
 
 	trans := raft.NewNetworkTransport(NewStream(r.Listener), r.cfg.TransportMaxPool, r.transTimeout, nil)
 	if err != nil {
@@ -152,6 +157,18 @@ func (r *Raft) WithLogger(l *zap.Logger) {
 func (r *Raft) onElect() {
 	for elected := range r.electNotify {
 		r.logger.Info(fmt.Sprintf("raft election won %v", elected))
+	}
+}
+
+func (r *Raft) WrappedMetaClient() *wrappedMetaClient {
+	return &wrappedMetaClient{
+		r: r,
+	}
+}
+
+func (r *Raft) WrappedTSDBStore() *wrappedTSDBStore {
+	return &wrappedTSDBStore{
+		r: r,
 	}
 }
 

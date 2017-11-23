@@ -173,7 +173,7 @@ message DeleteShardGroupCmd {
 	uint64 id = 3;
 }
 
-message PrecreateShardGroups {
+message PrecreateShardGroupsCmd {
 	int64 from = 1;
 	int64 to = 2;
 }
