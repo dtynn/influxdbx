@@ -31,146 +31,201 @@ func (f *FSM) Apply(l *raft.Log) interface{} {
 	}
 
 	switch cmdType {
-	// continuous query
-	case fsmCmdTypeMetaCreateContinuousQuery:
-		return f.applyCreateContinuousQuery(buf)
-
-	case fsmCmdTypeMetaDropContinuousQuery:
-		return f.applyDropContinuousQuery(buf)
-
 	// database
 	case fsmCmdTypeMetaCreateDatabase:
-		return f.applyCreateDatabase(buf)
+		return f.applyMetaCreateDatabase(buf)
 
 	case fsmCmdTypeMetaCreateDatabaseWithRetentionPolicy:
-		return f.applyCreateDatabaseWithRetentionPolicy(buf)
+		return f.applyMetaCreateDatabaseWithRetentionPolicy(buf)
 
 	case fsmCmdTypeMetaDropDatabase:
-		return f.applyDropDatabase(buf)
+		return f.applyMetaDropDatabase(buf)
 
 	// retetion policy
 	case fsmCmdTypeMetaCreateRetentionPolicy:
-		return f.applyCreateRetentionPolicy(buf)
+		return f.applyMetaCreateRetentionPolicy(buf)
 
 	case fsmCmdTypeMetaDropRetentionPolicy:
-		return f.applyDropRetentionPolicy(buf)
+		return f.applyMetaDropRetentionPolicy(buf)
 
 	case fsmCmdTypeMetaUpdateRetentionPolicy:
-		return f.applyUpdateRetentionPolicy(buf)
+		return f.applyMetaUpdateRetentionPolicy(buf)
 
 	// user
 	case fsmCmdTypeMetaCreateUser:
-		return f.applyCreateUser(buf)
+		return f.applyMetaCreateUser(buf)
 
 	case fsmCmdTypeMetaDropUser:
-		return f.applyDropUser(buf)
+		return f.applyMetaDropUser(buf)
 
 	case fsmCmdTypeMetaUpdateUser:
-		return f.applyUpdateUser(buf)
+		return f.applyMetaUpdateUser(buf)
 
 	// privilege
 	case fsmCmdTypeMetaSetAdminPrivilege:
-		return f.applySetAdminPrivilege(buf)
+		return f.applyMetaSetAdminPrivilege(buf)
 
 	case fsmCmdTypeMetaSetPrivilege:
-		return f.applySetPrivilege(buf)
+		return f.applyMetaSetPrivilege(buf)
+
+	// shad
+	case fsmCmdTypeMetaDropShard:
+		return f.applyMetaDropShard(buf)
+
+	case fsmCmdTypeMetaPruneShardGroups:
+		return f.applyMetaPruneShardGroups(buf)
+
+	case fsmCmdTypeMetaCreateShardGroup:
+		return f.applyMetaCreateShardGroup(buf)
+
+	case fsmCmdTypeMetaDeleteShardGroup:
+		return f.applyMetaDeleteShardGroup(buf)
+
+	case fsmCmdTypeMetaPrecreateShardGroups:
+		return f.applyMetaPrecreateShardGroups(buf)
+
+	// continuous query
+	case fsmCmdTypeMetaCreateContinuousQuery:
+		return f.applyMetaCreateContinuousQuery(buf)
+
+	case fsmCmdTypeMetaDropContinuousQuery:
+		return f.applyMetaDropContinuousQuery(buf)
+
+	case fsmCmdTypeMetaCreateSubscription:
+		return f.applyMetaCreateSubscription(buf)
+
+	case fsmCmdTypeMetaDropSubscription:
+		return f.applyMetaDropSubscription(buf)
+
+	case fsmCmdTypeMetaAcquireLease:
+		return f.applyMetaAcquireLease(buf)
+
+	case fsmCmdTypeMetaDatabase:
+		return f.applyMetaDatabase(buf)
+
+	case fsmCmdTypeMetaDatabases:
+		return f.applyMetaDatabases(buf)
+
+	case fsmCmdTypeMetaRetentionPolicy:
+		return f.applyMetaRetentionPolicy(buf)
+
+	case fsmCmdTypeMetaUsers:
+		return f.applyMetaUsers(buf)
+
+	case fsmCmdTypeMetaUser:
+		return f.applyMetaUser(buf)
+
+	case fsmCmdTypeMetaUserPrivileges:
+		return f.applyMetaUserPrivileges(buf)
+
+	case fsmCmdTypeMetaUserPrivilege:
+		return f.applyMetaUserPrivilege(buf)
+
+	case fsmCmdTypeMetaAdminUserExists:
+		return f.applyMetaAdminUserExists(buf)
+
+	case fsmCmdTypeMetaAuthenticate:
+		return f.applyMetaAuthenticate(buf)
+
+	case fsmCmdTypeMetaShardGroupsByTimeRange:
+		return f.applyMetaShardGroupsByTimeRange(buf)
 
 	default:
 		return newFsmCmdResponse(nil, fmt.Errorf("unknown cmd type %v", cmdType))
 	}
 }
 
-func (f *FSM) applyAcquireLease(buf []byte) fsmCmdResponse {
-	var cmd internal.AcquireLeaseCmd
+func (f *FSM) applyMetaAcquireLease(buf []byte) fsmCmdResponse {
+	var cmd internal.MetaAcquireLeaseCmd
 	protoCmdUnmarshal(buf, &cmd)
 
 	return newFsmCmdResponse(f.r.MetaClient.AcquireLease(cmd.GetName()))
 }
 
 // database
-func (f *FSM) applyDatabase(buf []byte) fsmCmdResponse {
-	var cmd internal.DatabaseCmd
+func (f *FSM) applyMetaDatabase(buf []byte) fsmCmdResponse {
+	var cmd internal.MetaDatabaseCmd
 	protoCmdUnmarshal(buf, &cmd)
 
 	return newFsmCmdResponse(f.r.MetaClient.Database(cmd.GetName()), nil)
 }
 
-func (f *FSM) applyDatabases(buf []byte) fsmCmdResponse {
+func (f *FSM) applyMetaDatabases(buf []byte) fsmCmdResponse {
 	return newFsmCmdResponse(f.r.MetaClient.Databases(), nil)
 }
 
-func (f *FSM) applyCreateDatabase(buf []byte) fsmCmdResponse {
-	var cmd internal.CreateDatabaseCmd
+func (f *FSM) applyMetaCreateDatabase(buf []byte) fsmCmdResponse {
+	var cmd internal.MetaCreateDatabaseCmd
 	protoCmdUnmarshal(buf, &cmd)
 
 	return newFsmCmdResponse(f.r.MetaClient.CreateDatabase(cmd.GetName()))
 }
 
-func (f *FSM) applyCreateDatabaseWithRetentionPolicy(buf []byte) fsmCmdResponse {
-	var cmd internal.CreateDatabaseWithRetentionPolicyCmd
+func (f *FSM) applyMetaCreateDatabaseWithRetentionPolicy(buf []byte) fsmCmdResponse {
+	var cmd internal.MetaCreateDatabaseWithRetentionPolicyCmd
 	protoCmdUnmarshal(buf, &cmd)
 
 	return newFsmCmdResponse(f.r.MetaClient.CreateDatabaseWithRetentionPolicy(cmd.GetName(), retentionPolicySpecProto2Meta(cmd.GetSpec())))
 }
 
-func (f *FSM) applyDropDatabase(buf []byte) fsmCmdResponse {
-	var cmd internal.DropDatabaseCmd
+func (f *FSM) applyMetaDropDatabase(buf []byte) fsmCmdResponse {
+	var cmd internal.MetaDropDatabaseCmd
 	protoCmdUnmarshal(buf, &cmd)
 
 	return newFsmCmdResponse(nil, f.r.MetaClient.DropDatabase(cmd.GetName()))
 }
 
 // retention policy
-func (f *FSM) applyCreateRetentionPolicy(buf []byte) fsmCmdResponse {
-	var cmd internal.CreateRetentionPolicyCmd
+func (f *FSM) applyMetaCreateRetentionPolicy(buf []byte) fsmCmdResponse {
+	var cmd internal.MetaCreateRetentionPolicyCmd
 	protoCmdUnmarshal(buf, &cmd)
 
 	return newFsmCmdResponse(f.r.MetaClient.CreateRetentionPolicy(cmd.GetDatabase(), retentionPolicySpecProto2Meta(cmd.GetSpec()), cmd.GetMakeDefault()))
 }
 
-func (f *FSM) applyRetentionPolicy(buf []byte) fsmCmdResponse {
-	var cmd internal.RetentionPolicyCmd
+func (f *FSM) applyMetaRetentionPolicy(buf []byte) fsmCmdResponse {
+	var cmd internal.MetaRetentionPolicyCmd
 	protoCmdUnmarshal(buf, &cmd)
 
 	return newFsmCmdResponse(f.r.MetaClient.RetentionPolicy(cmd.GetDatabase(), cmd.GetName()))
 }
 
-func (f *FSM) applyDropRetentionPolicy(buf []byte) fsmCmdResponse {
-	var cmd internal.DropRetentionPolicyCmd
+func (f *FSM) applyMetaDropRetentionPolicy(buf []byte) fsmCmdResponse {
+	var cmd internal.MetaDropRetentionPolicyCmd
 	protoCmdUnmarshal(buf, &cmd)
 
 	return newFsmCmdResponse(nil, f.r.MetaClient.DropRetentionPolicy(cmd.GetDatabase(), cmd.GetName()))
 }
 
-func (f *FSM) applyUpdateRetentionPolicy(buf []byte) fsmCmdResponse {
-	var cmd internal.UpdateRetentionPolicyCmd
+func (f *FSM) applyMetaUpdateRetentionPolicy(buf []byte) fsmCmdResponse {
+	var cmd internal.MetaUpdateRetentionPolicyCmd
 	protoCmdUnmarshal(buf, &cmd)
 
 	return newFsmCmdResponse(nil, f.r.MetaClient.UpdateRetentionPolicy(cmd.GetDatabase(), cmd.GetName(), retentionPolicyUpdateProto2Meta(cmd.GetUpdate()), cmd.GetMakeDefault()))
 }
 
 // user manage
-func (f *FSM) applyUsers(buf []byte) fsmCmdResponse {
+func (f *FSM) applyMetaUsers(buf []byte) fsmCmdResponse {
 	return newFsmCmdResponse(f.r.MetaClient.Users(), nil)
 }
 
-func (f *FSM) applyUser(buf []byte) fsmCmdResponse {
-	var cmd internal.UserCmd
+func (f *FSM) applyMetaUser(buf []byte) fsmCmdResponse {
+	var cmd internal.MetaUserCmd
 	protoCmdUnmarshal(buf, &cmd)
 
 	return newFsmCmdResponse(f.r.MetaClient.User(cmd.GetName()))
 }
 
-func (f *FSM) applyCreateUser(buf []byte) fsmCmdResponse {
-	var cmd internal.CreateUserCmd
+func (f *FSM) applyMetaCreateUser(buf []byte) fsmCmdResponse {
+	var cmd internal.MetaCreateUserCmd
 	protoCmdUnmarshal(buf, &cmd)
 
 	res, err := f.r.MetaClient.CreateUser(cmd.GetName(), cmd.GetPassword(), cmd.GetAdmin())
 	return newFsmCmdResponse(res, err)
 }
 
-func (f *FSM) applyUpdateUser(buf []byte) fsmCmdResponse {
-	var cmd internal.UpdateUserCmd
+func (f *FSM) applyMetaUpdateUser(buf []byte) fsmCmdResponse {
+	var cmd internal.MetaUpdateUserCmd
 	protoCmdUnmarshal(buf, &cmd)
 
 	err := f.r.MetaClient.UpdateUser(cmd.GetName(), cmd.GetPassword())
@@ -178,8 +233,8 @@ func (f *FSM) applyUpdateUser(buf []byte) fsmCmdResponse {
 	return newFsmCmdResponse(nil, err)
 }
 
-func (f *FSM) applyDropUser(buf []byte) fsmCmdResponse {
-	var cmd internal.DropUserCmd
+func (f *FSM) applyMetaDropUser(buf []byte) fsmCmdResponse {
+	var cmd internal.MetaDropUserCmd
 	protoCmdUnmarshal(buf, &cmd)
 
 	err := f.r.MetaClient.DropUser(cmd.GetName())
@@ -188,138 +243,104 @@ func (f *FSM) applyDropUser(buf []byte) fsmCmdResponse {
 }
 
 // user privilege
-func (f *FSM) applySetAdminPrivilege(buf []byte) fsmCmdResponse {
-	var cmd internal.SetAdminPrivilegeCmd
+func (f *FSM) applyMetaSetAdminPrivilege(buf []byte) fsmCmdResponse {
+	var cmd internal.MetaSetAdminPrivilegeCmd
 	protoCmdUnmarshal(buf, &cmd)
 
 	err := f.r.MetaClient.SetAdminPrivilege(cmd.GetUsername(), cmd.GetAdmin())
 	return newFsmCmdResponse(nil, err)
 }
 
-func (f *FSM) applySetPrivilege(buf []byte) fsmCmdResponse {
-	var cmd internal.SetPrivilegeCmd
+func (f *FSM) applyMetaSetPrivilege(buf []byte) fsmCmdResponse {
+	var cmd internal.MetaSetPrivilegeCmd
 	protoCmdUnmarshal(buf, &cmd)
 
 	err := f.r.MetaClient.SetPrivilege(cmd.GetUsername(), cmd.GetDatabase(), influxql.Privilege(cmd.GetPrivilege()))
 	return newFsmCmdResponse(nil, err)
 }
 
-func (f *FSM) applyUserPrivileges(buf []byte) fsmCmdResponse {
-	var cmd internal.UserPrivilegesCmd
+func (f *FSM) applyMetaUserPrivileges(buf []byte) fsmCmdResponse {
+	var cmd internal.MetaUserPrivilegesCmd
 	protoCmdUnmarshal(buf, &cmd)
 
 	return newFsmCmdResponse(f.r.MetaClient.UserPrivileges(cmd.GetUsername()))
 }
 
-func (f *FSM) applyUserPrivilege(buf []byte) fsmCmdResponse {
-	var cmd internal.UserPrivilegeCmd
+func (f *FSM) applyMetaUserPrivilege(buf []byte) fsmCmdResponse {
+	var cmd internal.MetaUserPrivilegeCmd
 	protoCmdUnmarshal(buf, &cmd)
 
 	return newFsmCmdResponse(f.r.MetaClient.UserPrivilege(cmd.GetUsername(), cmd.GetDatabase()))
 }
 
-func (f *FSM) applyAdminUserExists(buf []byte) fsmCmdResponse {
+func (f *FSM) applyMetaAdminUserExists(buf []byte) fsmCmdResponse {
 	return newFsmCmdResponse(f.r.MetaClient.AdminUserExists(), nil)
 }
 
-func (f *FSM) applyAuthenticate(buf []byte) fsmCmdResponse {
-	var cmd internal.AuthenticateCmd
+func (f *FSM) applyMetaAuthenticate(buf []byte) fsmCmdResponse {
+	var cmd internal.MetaAuthenticateCmd
 	protoCmdUnmarshal(buf, &cmd)
 
 	return newFsmCmdResponse(f.r.MetaClient.Authenticate(cmd.GetUsername(), cmd.GetPassword()))
 }
 
-func (f *FSM) applyUserCount(buf []byte) fsmCmdResponse {
-
-	return newFsmCmdResponse(f.r.MetaClient.UserCount(), nil)
-}
-
 // shard
-func (f *FSM) applyShardIDs(buf []byte) fsmCmdResponse {
-
-	return newFsmCmdResponse(f.r.MetaClient.ShardIDs(), nil)
-}
-
-func (f *FSM) applyShardGroupsByTimeRange(buf []byte) fsmCmdResponse {
-	var cmd internal.ShardGroupsByTimeRangeCmd
+func (f *FSM) applyMetaShardGroupsByTimeRange(buf []byte) fsmCmdResponse {
+	var cmd internal.MetaShardGroupsByTimeRangeCmd
 	protoCmdUnmarshal(buf, &cmd)
 
 	return newFsmCmdResponse(f.r.MetaClient.ShardGroupsByTimeRange(cmd.GetDatabase(), cmd.GetPolicy(), nano2time(cmd.GetTmin()), nano2time(cmd.GetTmax())))
 }
 
-func (f *FSM) applyShardsByTimeRange(buf []byte) fsmCmdResponse {
-	var cmd internal.ShardsByTimeRangeCmd
-	protoCmdUnmarshal(buf, &cmd)
-
-	sources := make(influxql.Sources, 0, 10)
-	if err := sources.UnmarshalBinary(cmd.GetSourceData()); err != nil {
-		return newFsmCmdResponse(nil, err)
-	}
-
-	return newFsmCmdResponse(f.r.MetaClient.ShardsByTimeRange(sources, nano2time(cmd.GetTmin()), nano2time(cmd.GetTmax())))
-}
-
-func (f *FSM) applyDropShard(buf []byte) fsmCmdResponse {
-	var cmd internal.DropShardCmd
+func (f *FSM) applyMetaDropShard(buf []byte) fsmCmdResponse {
+	var cmd internal.MetaDropShardCmd
 	protoCmdUnmarshal(buf, &cmd)
 
 	err := f.r.MetaClient.DropShard(cmd.GetId())
 	return newFsmCmdResponse(nil, err)
 }
 
-func (f *FSM) applyPruneShardGroups(buf []byte) fsmCmdResponse {
+func (f *FSM) applyMetaPruneShardGroups(buf []byte) fsmCmdResponse {
 
 	return newFsmCmdResponse(nil, f.r.MetaClient.PruneShardGroups())
 
 }
 
-func (f *FSM) applyCreateShardGroup(buf []byte) fsmCmdResponse {
-	var cmd internal.CreateShardGroupCmd
+func (f *FSM) applyMetaCreateShardGroup(buf []byte) fsmCmdResponse {
+	var cmd internal.MetaCreateShardGroupCmd
 	protoCmdUnmarshal(buf, &cmd)
 
 	return newFsmCmdResponse(f.r.MetaClient.CreateShardGroup(cmd.GetDatabase(), cmd.GetPolicy(), nano2time(cmd.GetTimestamp())))
 
 }
 
-func (f *FSM) applyDeleteShardGroup(buf []byte) fsmCmdResponse {
-	var cmd internal.DeleteShardGroupCmd
+func (f *FSM) applyMetaDeleteShardGroup(buf []byte) fsmCmdResponse {
+	var cmd internal.MetaDeleteShardGroupCmd
 	protoCmdUnmarshal(buf, &cmd)
 
 	return newFsmCmdResponse(nil, f.r.MetaClient.DeleteShardGroup(cmd.GetDatabase(), cmd.GetPolicy(), cmd.GetId()))
 
 }
 
-func (f *FSM) applyPrecreateShardGroups(buf []byte) fsmCmdResponse {
-	var cmd internal.PrecreateShardGroupsCmd
+func (f *FSM) applyMetaPrecreateShardGroups(buf []byte) fsmCmdResponse {
+	var cmd internal.MetaPrecreateShardGroupsCmd
 	protoCmdUnmarshal(buf, &cmd)
 
 	return newFsmCmdResponse(nil, f.r.MetaClient.PrecreateShardGroups(nano2time(cmd.GetFrom()), nano2time(cmd.GetTo())))
 
 }
 
-func (f *FSM) applyShardOwner(buf []byte) fsmCmdResponse {
-	var cmd internal.ShardOwnerCmd
-	protoCmdUnmarshal(buf, &cmd)
-
-	var sor shardOwnerResult
-
-	sor.database, sor.policy, sor.info = f.r.MetaClient.ShardOwner(cmd.GetId())
-
-	return newFsmCmdResponse(sor, nil)
-
-}
-
 // continuous query
-func (f *FSM) applyCreateContinuousQuery(buf []byte) fsmCmdResponse {
-	var cmd internal.CreateContinuousQueryCmd
+func (f *FSM) applyMetaCreateContinuousQuery(buf []byte) fsmCmdResponse {
+	var cmd internal.MetaCreateContinuousQueryCmd
 	protoCmdUnmarshal(buf, &cmd)
 
 	err := f.r.MetaClient.CreateContinuousQuery(cmd.GetDatabase(), cmd.GetName(), cmd.GetQuery())
 	return newFsmCmdResponse(nil, err)
 }
 
-func (f *FSM) applyDropContinuousQuery(buf []byte) fsmCmdResponse {
-	var cmd internal.DropContinuousQueryCmd
+func (f *FSM) applyMetaDropContinuousQuery(buf []byte) fsmCmdResponse {
+	var cmd internal.MetaDropContinuousQueryCmd
 	protoCmdUnmarshal(buf, &cmd)
 
 	err := f.r.MetaClient.DropContinuousQuery(cmd.GetDatabase(), cmd.GetName())
@@ -327,16 +348,16 @@ func (f *FSM) applyDropContinuousQuery(buf []byte) fsmCmdResponse {
 }
 
 // subscription
-func (f *FSM) applyCreateSubscription(buf []byte) fsmCmdResponse {
-	var cmd internal.CreateSubscriptionCmd
+func (f *FSM) applyMetaCreateSubscription(buf []byte) fsmCmdResponse {
+	var cmd internal.MetaCreateSubscriptionCmd
 	protoCmdUnmarshal(buf, &cmd)
 
 	err := f.r.MetaClient.CreateSubscription(cmd.GetDatabase(), cmd.GetRp(), cmd.GetName(), cmd.GetMode(), cmd.GetDestinations())
 	return newFsmCmdResponse(nil, err)
 }
 
-func (f *FSM) applyDropSubscription(buf []byte) fsmCmdResponse {
-	var cmd internal.DropSubscriptionCmd
+func (f *FSM) applyMetaDropSubscription(buf []byte) fsmCmdResponse {
+	var cmd internal.MetaDropSubscriptionCmd
 	protoCmdUnmarshal(buf, &cmd)
 
 	err := f.r.MetaClient.DropSubscription(cmd.GetDatabase(), cmd.GetRp(), cmd.GetName())

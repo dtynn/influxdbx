@@ -1,42 +1,22 @@
 package raft
 
 import (
-	"fmt"
 	"time"
 
+	"github.com/dtynn/influxdbx/coordinator"
 	"github.com/dtynn/influxdbx/raft/internal"
-	"github.com/gogo/protobuf/proto"
 	"github.com/influxdata/influxdb/services/meta"
 	"github.com/influxdata/influxql"
 )
 
 var (
 	emptyMetaUser = &meta.UserInfo{}
+
+	_ coordinator.MetaClient = (*wrappedMetaClient)(nil)
 )
 
 type wrappedMetaClient struct {
 	r *Raft
-}
-
-func (w *wrappedMetaClient) applyCmd(cmdType fsmCmdType, cmd proto.Message) (interface{}, error) {
-	b, id, err := fsmCmdMarshal(cmdType, cmd)
-	if err != nil {
-		return nil, err
-	}
-
-	if id != nil {
-		w.r.queryMgr.Add(*id)
-	}
-
-	// TODO configurable
-	f := w.r.r.Apply(b, 10*time.Second)
-
-	if err := f.Error(); err != nil {
-		return nil, err
-	}
-
-	resp := (f.Response()).(fsmCmdResponse)
-	return resp.res, resp.err
 }
 
 // AcquireLease
@@ -48,11 +28,11 @@ func (w *wrappedMetaClient) applyCmd(cmdType fsmCmdType, cmd proto.Message) (int
 // TODO read code
 // services/continuous_querier Service.backgroundLoop
 func (w *wrappedMetaClient) AcquireLease(name string) (*meta.Lease, error) {
-	cmd := &internal.AcquireLeaseCmd{
+	cmd := &internal.MetaAcquireLeaseCmd{
 		Name: name,
 	}
 
-	res, err := w.applyCmd(fsmCmdTypeMetaAcquireLease, cmd)
+	res, err := applyCmd(w.r, fsmCmdTypeMetaAcquireLease, cmd)
 	if err != nil {
 		return nil, err
 	}
@@ -65,36 +45,34 @@ func (w *wrappedMetaClient) ClusterID() uint64 {
 	return w.r.MetaClient.ClusterID()
 }
 
-func (w *wrappedMetaClient) Database(name string) *meta.DatabaseInfo {
-	cmd := &internal.DatabaseCmd{
+func (w *wrappedMetaClient) Database(name string) (*meta.DatabaseInfo, error) {
+	cmd := &internal.MetaDatabaseCmd{
 		Name: name,
 	}
 
-	res, err := w.applyCmd(fsmCmdTypeMetaDatabase, cmd)
+	res, err := applyCmd(w.r, fsmCmdTypeMetaDatabase, cmd)
 	if err != nil {
-		w.r.logger.Warn(fmt.Sprintf("wrappedMetaClient.Database: %s", err))
-		return nil
+		return nil, err
 	}
 
-	return res.(*meta.DatabaseInfo)
+	return res.(*meta.DatabaseInfo), nil
 }
 
-func (w *wrappedMetaClient) Databases() []meta.DatabaseInfo {
-	res, err := w.applyCmd(fsmCmdTypeMetaDatabases, nil)
+func (w *wrappedMetaClient) Databases() ([]meta.DatabaseInfo, error) {
+	res, err := applyCmd(w.r, fsmCmdTypeMetaDatabases, nil)
 	if err != nil {
-		w.r.logger.Warn(fmt.Sprintf("wrappedMetaClient.Databases: %s", err))
-		return nil
+		return nil, err
 	}
 
-	return res.([]meta.DatabaseInfo)
+	return res.([]meta.DatabaseInfo), nil
 }
 
 func (w *wrappedMetaClient) CreateDatabase(name string) (*meta.DatabaseInfo, error) {
-	cmd := &internal.CreateDatabaseCmd{
+	cmd := &internal.MetaCreateDatabaseCmd{
 		Name: name,
 	}
 
-	res, err := w.applyCmd(fsmCmdTypeMetaCreateDatabase, cmd)
+	res, err := applyCmd(w.r, fsmCmdTypeMetaCreateDatabase, cmd)
 	if err != nil {
 		return nil, err
 	}
@@ -103,12 +81,12 @@ func (w *wrappedMetaClient) CreateDatabase(name string) (*meta.DatabaseInfo, err
 }
 
 func (w *wrappedMetaClient) CreateDatabaseWithRetentionPolicy(name string, spec *meta.RetentionPolicySpec) (*meta.DatabaseInfo, error) {
-	cmd := &internal.CreateDatabaseWithRetentionPolicyCmd{
+	cmd := &internal.MetaCreateDatabaseWithRetentionPolicyCmd{
 		Name: name,
 		Spec: retentionPolicySpecMeta2Proto(spec),
 	}
 
-	res, err := w.applyCmd(fsmCmdTypeMetaCreateDatabaseWithRetentionPolicy, cmd)
+	res, err := applyCmd(w.r, fsmCmdTypeMetaCreateDatabaseWithRetentionPolicy, cmd)
 	if err != nil {
 		return nil, err
 	}
@@ -117,23 +95,23 @@ func (w *wrappedMetaClient) CreateDatabaseWithRetentionPolicy(name string, spec 
 }
 
 func (w *wrappedMetaClient) DropDatabase(name string) error {
-	cmd := &internal.DropDatabaseCmd{
+	cmd := &internal.MetaDropDatabaseCmd{
 		Name: name,
 	}
 
-	_, err := w.applyCmd(fsmCmdTypeMetaDropDatabase, cmd)
+	_, err := applyCmd(w.r, fsmCmdTypeMetaDropDatabase, cmd)
 
 	return err
 }
 
 func (w *wrappedMetaClient) CreateRetentionPolicy(database string, spec *meta.RetentionPolicySpec, makeDefault bool) (*meta.RetentionPolicyInfo, error) {
-	cmd := &internal.CreateRetentionPolicyCmd{
+	cmd := &internal.MetaCreateRetentionPolicyCmd{
 		Database:    database,
 		Spec:        retentionPolicySpecMeta2Proto(spec),
 		MakeDefault: makeDefault,
 	}
 
-	res, err := w.applyCmd(fsmCmdTypeMetaCreateRetentionPolicy, cmd)
+	res, err := applyCmd(w.r, fsmCmdTypeMetaCreateRetentionPolicy, cmd)
 	if err != nil {
 		return nil, err
 	}
@@ -142,12 +120,12 @@ func (w *wrappedMetaClient) CreateRetentionPolicy(database string, spec *meta.Re
 }
 
 func (w *wrappedMetaClient) RetentionPolicy(database, name string) (*meta.RetentionPolicyInfo, error) {
-	cmd := &internal.RetentionPolicyCmd{
+	cmd := &internal.MetaRetentionPolicyCmd{
 		Database: database,
 		Name:     name,
 	}
 
-	res, err := w.applyCmd(fsmCmdTypeMetaRetentionPolicy, cmd)
+	res, err := applyCmd(w.r, fsmCmdTypeMetaRetentionPolicy, cmd)
 	if err != nil {
 		return nil, err
 	}
@@ -156,45 +134,44 @@ func (w *wrappedMetaClient) RetentionPolicy(database, name string) (*meta.Retent
 }
 
 func (w *wrappedMetaClient) DropRetentionPolicy(database, name string) error {
-	cmd := &internal.DropRetentionPolicyCmd{
+	cmd := &internal.MetaDropRetentionPolicyCmd{
 		Database: database,
 		Name:     name,
 	}
 
-	_, err := w.applyCmd(fsmCmdTypeMetaDropRetentionPolicy, cmd)
+	_, err := applyCmd(w.r, fsmCmdTypeMetaDropRetentionPolicy, cmd)
 
 	return err
 }
 
 func (w *wrappedMetaClient) UpdateRetentionPolicy(database, name string, rpu *meta.RetentionPolicyUpdate, makeDefault bool) error {
-	cmd := &internal.UpdateRetentionPolicyCmd{
+	cmd := &internal.MetaUpdateRetentionPolicyCmd{
 		Database:    database,
 		Name:        name,
 		Update:      retentionPolicyUpdateMeta2Proto(rpu),
 		MakeDefault: makeDefault,
 	}
 
-	_, err := w.applyCmd(fsmCmdTypeMetaUpdateRetentionPolicy, cmd)
+	_, err := applyCmd(w.r, fsmCmdTypeMetaUpdateRetentionPolicy, cmd)
 
 	return err
 }
 
-func (w *wrappedMetaClient) Users() []meta.UserInfo {
-	res, err := w.applyCmd(fsmCmdTypeMetaUsers, nil)
+func (w *wrappedMetaClient) Users() ([]meta.UserInfo, error) {
+	res, err := applyCmd(w.r, fsmCmdTypeMetaUsers, nil)
 	if err != nil {
-		w.r.logger.Warn(fmt.Sprintf("wrappedMetaClient.Users: %s", err))
-		return nil
+		return nil, err
 	}
 
-	return res.([]meta.UserInfo)
+	return res.([]meta.UserInfo), nil
 }
 
 func (w *wrappedMetaClient) User(name string) (meta.User, error) {
-	cmd := &internal.UserCmd{
+	cmd := &internal.MetaUserCmd{
 		Name: name,
 	}
 
-	res, err := w.applyCmd(fsmCmdTypeMetaUser, cmd)
+	res, err := applyCmd(w.r, fsmCmdTypeMetaUser, cmd)
 	if err != nil {
 		return nil, err
 	}
@@ -203,13 +180,13 @@ func (w *wrappedMetaClient) User(name string) (meta.User, error) {
 }
 
 func (w *wrappedMetaClient) CreateUser(name, password string, admin bool) (meta.User, error) {
-	cmd := &internal.CreateUserCmd{
+	cmd := &internal.MetaCreateUserCmd{
 		Name:     name,
 		Password: password,
 		Admin:    admin,
 	}
 
-	res, err := w.applyCmd(fsmCmdTypeMetaCreateUser, cmd)
+	res, err := applyCmd(w.r, fsmCmdTypeMetaCreateUser, cmd)
 	if err != nil {
 		return emptyMetaUser, err
 	}
@@ -218,55 +195,55 @@ func (w *wrappedMetaClient) CreateUser(name, password string, admin bool) (meta.
 }
 
 func (w *wrappedMetaClient) UpdateUser(name, password string) error {
-	cmd := &internal.UpdateUserCmd{
+	cmd := &internal.MetaUpdateUserCmd{
 		Name:     name,
 		Password: password,
 	}
 
-	_, err := w.applyCmd(fsmCmdTypeMetaUpdateUser, cmd)
+	_, err := applyCmd(w.r, fsmCmdTypeMetaUpdateUser, cmd)
 
 	return err
 }
 
 func (w *wrappedMetaClient) DropUser(name string) error {
-	cmd := &internal.DropUserCmd{
+	cmd := &internal.MetaDropUserCmd{
 		Name: name,
 	}
 
-	_, err := w.applyCmd(fsmCmdTypeMetaDropUser, cmd)
+	_, err := applyCmd(w.r, fsmCmdTypeMetaDropUser, cmd)
 
 	return err
 }
 
 func (w *wrappedMetaClient) SetPrivilege(username, database string, p influxql.Privilege) error {
-	cmd := &internal.SetPrivilegeCmd{
+	cmd := &internal.MetaSetPrivilegeCmd{
 		Username:  username,
 		Database:  database,
 		Privilege: int64(p),
 	}
 
-	_, err := w.applyCmd(fsmCmdTypeMetaSetPrivilege, cmd)
+	_, err := applyCmd(w.r, fsmCmdTypeMetaSetPrivilege, cmd)
 
 	return err
 }
 
 func (w *wrappedMetaClient) SetAdminPrivilege(username string, admin bool) error {
-	cmd := &internal.SetAdminPrivilegeCmd{
+	cmd := &internal.MetaSetAdminPrivilegeCmd{
 		Username: username,
 		Admin:    admin,
 	}
 
-	_, err := w.applyCmd(fsmCmdTypeMetaSetAdminPrivilege, cmd)
+	_, err := applyCmd(w.r, fsmCmdTypeMetaSetAdminPrivilege, cmd)
 
 	return err
 }
 
 func (w *wrappedMetaClient) UserPrivileges(username string) (map[string]influxql.Privilege, error) {
-	cmd := &internal.UserPrivilegesCmd{
+	cmd := &internal.MetaUserPrivilegesCmd{
 		Username: username,
 	}
 
-	res, err := w.applyCmd(fsmCmdTypeMetaUserPrivileges, cmd)
+	res, err := applyCmd(w.r, fsmCmdTypeMetaUserPrivileges, cmd)
 	if err != nil {
 		return nil, err
 	}
@@ -275,12 +252,12 @@ func (w *wrappedMetaClient) UserPrivileges(username string) (map[string]influxql
 }
 
 func (w *wrappedMetaClient) UserPrivilege(username, database string) (*influxql.Privilege, error) {
-	cmd := &internal.UserPrivilegeCmd{
+	cmd := &internal.MetaUserPrivilegeCmd{
 		Username: username,
 		Database: database,
 	}
 
-	res, err := w.applyCmd(fsmCmdTypeMetaUserPrivilege, cmd)
+	res, err := applyCmd(w.r, fsmCmdTypeMetaUserPrivilege, cmd)
 	if err != nil {
 		return nil, err
 	}
@@ -288,23 +265,22 @@ func (w *wrappedMetaClient) UserPrivilege(username, database string) (*influxql.
 	return res.(*influxql.Privilege), nil
 }
 
-func (w *wrappedMetaClient) AdminUserExists() bool {
-	res, err := w.applyCmd(fsmCmdTypeMetaAdminUserExists, nil)
+func (w *wrappedMetaClient) AdminUserExists() (bool, error) {
+	res, err := applyCmd(w.r, fsmCmdTypeMetaAdminUserExists, nil)
 	if err != nil {
-		w.r.logger.Warn(fmt.Sprintf("wrappedMetaClient.AdminUserExists: %s", err))
-		return false
+		return false, err
 	}
 
-	return res.(bool)
+	return res.(bool), nil
 }
 
 func (w *wrappedMetaClient) Authenticate(username, password string) (meta.User, error) {
-	cmd := &internal.AuthenticateCmd{
+	cmd := &internal.MetaAuthenticateCmd{
 		Username: username,
 		Password: password,
 	}
 
-	res, err := w.applyCmd(fsmCmdTypeMetaAuthenticate, cmd)
+	res, err := applyCmd(w.r, fsmCmdTypeMetaAuthenticate, cmd)
 	if err != nil {
 		return nil, err
 	}
@@ -312,35 +288,15 @@ func (w *wrappedMetaClient) Authenticate(username, password string) (meta.User, 
 	return res.(meta.User), nil
 }
 
-func (w *wrappedMetaClient) UserCount() int {
-	res, err := w.applyCmd(fsmCmdTypeMetaUserCount, nil)
-	if err != nil {
-		w.r.logger.Warn(fmt.Sprintf("wrappedMetaClient.UserCount: %s", err))
-		return 0
-	}
-
-	return res.(int)
-}
-
-func (w *wrappedMetaClient) ShardIDs() []uint64 {
-	res, err := w.applyCmd(fsmCmdTypeMetaShardIDs, nil)
-	if err != nil {
-		w.r.logger.Warn(fmt.Sprintf("wrappedMetaClient.ShardIDs: %s", err))
-		return nil
-	}
-
-	return res.([]uint64)
-}
-
 func (w *wrappedMetaClient) ShardGroupsByTimeRange(database, policy string, min, max time.Time) ([]meta.ShardGroupInfo, error) {
-	cmd := &internal.ShardGroupsByTimeRangeCmd{
+	cmd := &internal.MetaShardGroupsByTimeRangeCmd{
 		Database: database,
 		Policy:   policy,
 		Tmin:     min.UnixNano(),
 		Tmax:     max.UnixNano(),
 	}
 
-	res, err := w.applyCmd(fsmCmdTypeMetaShardGroupsByTimeRange, cmd)
+	res, err := applyCmd(w.r, fsmCmdTypeMetaShardGroupsByTimeRange, cmd)
 	if err != nil {
 		return nil, err
 	}
@@ -348,50 +304,30 @@ func (w *wrappedMetaClient) ShardGroupsByTimeRange(database, policy string, min,
 	return res.([]meta.ShardGroupInfo), nil
 }
 
-func (w *wrappedMetaClient) ShardsByTimeRange(sources influxql.Sources, tmin, tmax time.Time) ([]meta.ShardInfo, error) {
-	sourcesData, err := sources.MarshalBinary()
-	if err != nil {
-		return nil, err
-	}
-
-	cmd := &internal.ShardsByTimeRangeCmd{
-		SourceData: sourcesData,
-		Tmin:       tmin.UnixNano(),
-		Tmax:       tmax.UnixNano(),
-	}
-
-	res, err := w.applyCmd(fsmCmdTypeMetaShardsByTimeRange, cmd)
-	if err != nil {
-		return nil, err
-	}
-
-	return res.([]meta.ShardInfo), nil
-}
-
 func (w *wrappedMetaClient) DropShard(id uint64) error {
-	cmd := &internal.DropShardCmd{
+	cmd := &internal.MetaDropShardCmd{
 		Id: id,
 	}
 
-	_, err := w.applyCmd(fsmCmdTypeMetaDropShard, cmd)
+	_, err := applyCmd(w.r, fsmCmdTypeMetaDropShard, cmd)
 
 	return err
 }
 
 func (w *wrappedMetaClient) PruneShardGroups() error {
-	_, err := w.applyCmd(fsmCmdTypeMetaPruneShardGroups, nil)
+	_, err := applyCmd(w.r, fsmCmdTypeMetaPruneShardGroups, nil)
 
 	return err
 }
 
 func (w *wrappedMetaClient) CreateShardGroup(database, policy string, timestamp time.Time) (*meta.ShardGroupInfo, error) {
-	cmd := &internal.CreateShardGroupCmd{
+	cmd := &internal.MetaCreateShardGroupCmd{
 		Database:  database,
 		Policy:    policy,
 		Timestamp: timestamp.UnixNano(),
 	}
 
-	res, err := w.applyCmd(fsmCmdTypeMetaCreateShardGroup, cmd)
+	res, err := applyCmd(w.r, fsmCmdTypeMetaCreateShardGroup, cmd)
 	if err != nil {
 		return nil, err
 	}
@@ -400,73 +336,51 @@ func (w *wrappedMetaClient) CreateShardGroup(database, policy string, timestamp 
 }
 
 func (w *wrappedMetaClient) DeleteShardGroup(database, policy string, id uint64) error {
-	cmd := &internal.DeleteShardGroupCmd{
+	cmd := &internal.MetaDeleteShardGroupCmd{
 		Database: database,
 		Policy:   policy,
 	}
 
-	_, err := w.applyCmd(fsmCmdTypeMetaDeleteShardGroup, cmd)
+	_, err := applyCmd(w.r, fsmCmdTypeMetaDeleteShardGroup, cmd)
 
 	return err
 }
 
 func (w *wrappedMetaClient) PrecreateShardGroups(from, to time.Time) error {
-	cmd := &internal.PrecreateShardGroupsCmd{
+	cmd := &internal.MetaPrecreateShardGroupsCmd{
 		From: from.UnixNano(),
 		To:   to.UnixNano(),
 	}
 
-	_, err := w.applyCmd(fsmCmdTypeMetaPrecreateShardGroups, cmd)
+	_, err := applyCmd(w.r, fsmCmdTypeMetaPrecreateShardGroups, cmd)
 
 	return err
 }
 
-type shardOwnerResult struct {
-	database string
-	policy   string
-	info     *meta.ShardGroupInfo
-}
-
-func (w *wrappedMetaClient) ShardOwner(shardID uint64) (database, policy string, sgi *meta.ShardGroupInfo) {
-	cmd := &internal.ShardOwnerCmd{
-		Id: shardID,
-	}
-
-	res, err := w.applyCmd(fsmCmdTypeMetaShardOwner, cmd)
-	if err != nil {
-		w.r.logger.Warn(fmt.Sprintf("wrappedMetaClient.ShardOwner: %s", err))
-		return "", "", nil
-	}
-
-	sor := res.(shardOwnerResult)
-
-	return sor.database, sor.policy, sor.info
-}
-
 func (w *wrappedMetaClient) CreateContinuousQuery(database, name, query string) error {
-	cmd := &internal.CreateContinuousQueryCmd{
+	cmd := &internal.MetaCreateContinuousQueryCmd{
 		Database: database,
 		Name:     name,
 		Query:    query,
 	}
 
-	_, err := w.applyCmd(fsmCmdTypeMetaCreateContinuousQuery, cmd)
+	_, err := applyCmd(w.r, fsmCmdTypeMetaCreateContinuousQuery, cmd)
 	return err
 }
 
 func (w *wrappedMetaClient) DropContinuousQuery(database, name string) error {
-	cmd := &internal.DropContinuousQueryCmd{
+	cmd := &internal.MetaDropContinuousQueryCmd{
 		Database: database,
 		Name:     name,
 	}
 
-	_, err := w.applyCmd(fsmCmdTypeMetaDropContinuousQuery, cmd)
+	_, err := applyCmd(w.r, fsmCmdTypeMetaDropContinuousQuery, cmd)
 
 	return err
 }
 
 func (w *wrappedMetaClient) CreateSubscription(database, rp, name, mode string, destinations []string) error {
-	cmd := &internal.CreateSubscriptionCmd{
+	cmd := &internal.MetaCreateSubscriptionCmd{
 		Database:     database,
 		Rp:           rp,
 		Name:         name,
@@ -474,29 +388,21 @@ func (w *wrappedMetaClient) CreateSubscription(database, rp, name, mode string, 
 		Destinations: destinations,
 	}
 
-	_, err := w.applyCmd(fsmCmdTypeMetaCreateSubscription, cmd)
+	_, err := applyCmd(w.r, fsmCmdTypeMetaCreateSubscription, cmd)
 
 	return err
 }
 
 func (w *wrappedMetaClient) DropSubscription(database, rp, name string) error {
-	cmd := &internal.DropSubscriptionCmd{
+	cmd := &internal.MetaDropSubscriptionCmd{
 		Database: database,
 		Rp:       rp,
 		Name:     name,
 	}
 
-	_, err := w.applyCmd(fsmCmdTypeMetaDropSubscription, cmd)
+	_, err := applyCmd(w.r, fsmCmdTypeMetaDropSubscription, cmd)
 
 	return err
-}
-
-func (w *wrappedMetaClient) SetData(data *meta.Data) error {
-	return w.r.MetaClient.SetData(data)
-}
-
-func (w *wrappedMetaClient) Data() meta.Data {
-	return w.r.MetaClient.Data()
 }
 
 func (w *wrappedMetaClient) WaitForDataChanged() chan struct{} {
@@ -507,6 +413,125 @@ func (w *wrappedMetaClient) MarshalBinary() ([]byte, error) {
 	return w.r.MetaClient.MarshalBinary()
 }
 
-func (w *wrappedMetaClient) Load() error {
-	return w.r.MetaClient.Load()
+func retentionPolicySpecProto2Meta(pSpec *internal.RetentionPolicySpec) *meta.RetentionPolicySpec {
+	var spec *meta.RetentionPolicySpec
+	if pSpec != nil {
+		spec = &meta.RetentionPolicySpec{
+			Name:               pSpec.GetName(),
+			ReplicaN:           pSpec.GetReplicaN().IntPtr(),
+			Duration:           pSpec.GetDuration().DurationPtr(),
+			ShardGroupDuration: time.Duration(pSpec.GetShardGroupDuration()),
+		}
+	}
+
+	return spec
+}
+
+func retentionPolicyUpdateProto2Meta(pUpdate *internal.RetentionPolicyUpdate) *meta.RetentionPolicyUpdate {
+	var update *meta.RetentionPolicyUpdate
+	if pUpdate != nil {
+		update = &meta.RetentionPolicyUpdate{
+			Name:               pUpdate.GetName().StringPtr(),
+			ReplicaN:           pUpdate.GetReplicaN().IntPtr(),
+			Duration:           pUpdate.GetDuration().DurationPtr(),
+			ShardGroupDuration: pUpdate.GetShardGroupDuration().DurationPtr(),
+		}
+	}
+
+	return update
+}
+
+func retentionPolicySpecMeta2Proto(spec *meta.RetentionPolicySpec) *internal.RetentionPolicySpec {
+	var pSpec *internal.RetentionPolicySpec
+	if spec != nil {
+		pSpec = &internal.RetentionPolicySpec{
+			Name:               spec.Name,
+			ShardGroupDuration: int64(spec.ShardGroupDuration),
+		}
+
+		if spec.ReplicaN != nil {
+			pSpec.ReplicaN = &internal.OptionalInt64{
+				Val: int64(*spec.ReplicaN),
+			}
+		}
+
+		if spec.Duration != nil {
+			pSpec.Duration = &internal.OptionalInt64{
+				Val: int64(*spec.Duration),
+			}
+		}
+	}
+
+	return pSpec
+}
+
+func retentionPolicyUpdateMeta2Proto(update *meta.RetentionPolicyUpdate) *internal.RetentionPolicyUpdate {
+	var pUpdate *internal.RetentionPolicyUpdate
+	if update != nil {
+		pUpdate = &internal.RetentionPolicyUpdate{}
+
+		if update.Name != nil {
+			pUpdate.Name = &internal.OptionalString{
+				Val: *update.Name,
+			}
+		}
+
+		if update.ReplicaN != nil {
+			pUpdate.ReplicaN = &internal.OptionalInt64{
+				Val: int64(*update.ReplicaN),
+			}
+		}
+
+		if update.Duration != nil {
+			pUpdate.Duration = &internal.OptionalInt64{
+				Val: int64(*update.Duration),
+			}
+		}
+
+		if update.ShardGroupDuration != nil {
+			pUpdate.ShardGroupDuration = &internal.OptionalInt64{
+				Val: int64(*update.ShardGroupDuration),
+			}
+		}
+	}
+
+	return pUpdate
+}
+
+func userInfoMeta2Proto(ui *meta.UserInfo) *internal.UserInfo {
+	if ui == nil {
+		return nil
+	}
+
+	res := &internal.UserInfo{
+		Name:       ui.Name,
+		Hash:       ui.Hash,
+		Admin:      ui.Admin,
+		Privileges: make(map[string]int64, len(ui.Privileges)),
+	}
+
+	for db, p := range ui.Privileges {
+		res.Privileges[db] = int64(p)
+	}
+
+	return res
+}
+
+func userInfoProto2Meta(ui *internal.UserInfo) *meta.UserInfo {
+	if ui == nil {
+		return nil
+	}
+
+	res := &meta.UserInfo{
+		Name:       ui.GetName(),
+		Hash:       ui.GetHash(),
+		Admin:      ui.GetAdmin(),
+		Privileges: make(map[string]influxql.Privilege, len(ui.Privileges)),
+	}
+
+	for db, p := range ui.GetPrivileges() {
+		res.Privileges[db] = influxql.Privilege(p)
+	}
+
+	return res
 }

@@ -12,35 +12,47 @@ It has these top-level messages:
 	OptionalString
 	RetentionPolicySpec
 	RetentionPolicyUpdate
-	AcquireLeaseCmd
-	CreateContinuousQueryCmd
-	DropContinuousQueryCmd
-	DatabaseCmd
-	CreateDatabaseCmd
-	CreateDatabaseWithRetentionPolicyCmd
-	DropDatabaseCmd
-	CreateRetentionPolicyCmd
-	RetentionPolicyCmd
-	DropRetentionPolicyCmd
-	UpdateRetentionPolicyCmd
-	CreateSubscriptionCmd
-	DropSubscriptionCmd
-	UserCmd
-	CreateUserCmd
-	DropUserCmd
-	UpdateUserCmd
-	SetAdminPrivilegeCmd
-	SetPrivilegeCmd
-	UserPrivilegesCmd
-	UserPrivilegeCmd
-	AuthenticateCmd
-	ShardGroupsByTimeRangeCmd
-	ShardsByTimeRangeCmd
-	DropShardCmd
-	CreateShardGroupCmd
-	DeleteShardGroupCmd
-	PrecreateShardGroupsCmd
-	ShardOwnerCmd
+	UserInfo
+	MetaAcquireLeaseCmd
+	MetaCreateContinuousQueryCmd
+	MetaDropContinuousQueryCmd
+	MetaDatabaseCmd
+	MetaCreateDatabaseCmd
+	MetaCreateDatabaseWithRetentionPolicyCmd
+	MetaDropDatabaseCmd
+	MetaCreateRetentionPolicyCmd
+	MetaRetentionPolicyCmd
+	MetaDropRetentionPolicyCmd
+	MetaUpdateRetentionPolicyCmd
+	MetaCreateSubscriptionCmd
+	MetaDropSubscriptionCmd
+	MetaUserCmd
+	MetaCreateUserCmd
+	MetaDropUserCmd
+	MetaUpdateUserCmd
+	MetaSetAdminPrivilegeCmd
+	MetaSetPrivilegeCmd
+	MetaUserPrivilegesCmd
+	MetaUserPrivilegeCmd
+	MetaAuthenticateCmd
+	MetaShardGroupsByTimeRangeCmd
+	MetaDropShardCmd
+	MetaCreateShardGroupCmd
+	MetaDeleteShardGroupCmd
+	MetaPrecreateShardGroupsCmd
+	DataCreateShardCmd
+	DataWriteToShardCmd
+	DataDeleteShardCmd
+	DataShardGroupCmd
+	DataDeleteDatabaseCmd
+	DataDeleteRetentionPolicyCmd
+	DataDeleteMeasurementCmd
+	DataMeasurementNamesCmd
+	DataMeasurementsCardinalityCmd
+	DataDeleteSeriesCmd
+	DataSeriesCardinalityCmd
+	DataTagKeysCmd
+	DataTagValuesCmd
 */
 package internal
 
@@ -171,17 +183,57 @@ func (m *RetentionPolicyUpdate) GetShardGroupDuration() *OptionalInt64 {
 	return nil
 }
 
+type UserInfo struct {
+	Name       string           `protobuf:"bytes,1,opt,name=name" json:"name,omitempty"`
+	Hash       string           `protobuf:"bytes,2,opt,name=hash" json:"hash,omitempty"`
+	Admin      bool             `protobuf:"varint,3,opt,name=admin" json:"admin,omitempty"`
+	Privileges map[string]int64 `protobuf:"bytes,4,rep,name=privileges" json:"privileges,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"varint,2,opt,name=value"`
+}
+
+func (m *UserInfo) Reset()                    { *m = UserInfo{} }
+func (m *UserInfo) String() string            { return proto.CompactTextString(m) }
+func (*UserInfo) ProtoMessage()               {}
+func (*UserInfo) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{4} }
+
+func (m *UserInfo) GetName() string {
+	if m != nil {
+		return m.Name
+	}
+	return ""
+}
+
+func (m *UserInfo) GetHash() string {
+	if m != nil {
+		return m.Hash
+	}
+	return ""
+}
+
+func (m *UserInfo) GetAdmin() bool {
+	if m != nil {
+		return m.Admin
+	}
+	return false
+}
+
+func (m *UserInfo) GetPrivileges() map[string]int64 {
+	if m != nil {
+		return m.Privileges
+	}
+	return nil
+}
+
 // acquire lease
-type AcquireLeaseCmd struct {
+type MetaAcquireLeaseCmd struct {
 	Name string `protobuf:"bytes,1,opt,name=name" json:"name,omitempty"`
 }
 
-func (m *AcquireLeaseCmd) Reset()                    { *m = AcquireLeaseCmd{} }
-func (m *AcquireLeaseCmd) String() string            { return proto.CompactTextString(m) }
-func (*AcquireLeaseCmd) ProtoMessage()               {}
-func (*AcquireLeaseCmd) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{4} }
+func (m *MetaAcquireLeaseCmd) Reset()                    { *m = MetaAcquireLeaseCmd{} }
+func (m *MetaAcquireLeaseCmd) String() string            { return proto.CompactTextString(m) }
+func (*MetaAcquireLeaseCmd) ProtoMessage()               {}
+func (*MetaAcquireLeaseCmd) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{5} }
 
-func (m *AcquireLeaseCmd) GetName() string {
+func (m *MetaAcquireLeaseCmd) GetName() string {
 	if m != nil {
 		return m.Name
 	}
@@ -189,56 +241,56 @@ func (m *AcquireLeaseCmd) GetName() string {
 }
 
 // continuous query cmd
-type CreateContinuousQueryCmd struct {
+type MetaCreateContinuousQueryCmd struct {
 	Database string `protobuf:"bytes,1,opt,name=database" json:"database,omitempty"`
 	Name     string `protobuf:"bytes,2,opt,name=name" json:"name,omitempty"`
 	Query    string `protobuf:"bytes,3,opt,name=query" json:"query,omitempty"`
 }
 
-func (m *CreateContinuousQueryCmd) Reset()                    { *m = CreateContinuousQueryCmd{} }
-func (m *CreateContinuousQueryCmd) String() string            { return proto.CompactTextString(m) }
-func (*CreateContinuousQueryCmd) ProtoMessage()               {}
-func (*CreateContinuousQueryCmd) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{5} }
+func (m *MetaCreateContinuousQueryCmd) Reset()                    { *m = MetaCreateContinuousQueryCmd{} }
+func (m *MetaCreateContinuousQueryCmd) String() string            { return proto.CompactTextString(m) }
+func (*MetaCreateContinuousQueryCmd) ProtoMessage()               {}
+func (*MetaCreateContinuousQueryCmd) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{6} }
 
-func (m *CreateContinuousQueryCmd) GetDatabase() string {
+func (m *MetaCreateContinuousQueryCmd) GetDatabase() string {
 	if m != nil {
 		return m.Database
 	}
 	return ""
 }
 
-func (m *CreateContinuousQueryCmd) GetName() string {
+func (m *MetaCreateContinuousQueryCmd) GetName() string {
 	if m != nil {
 		return m.Name
 	}
 	return ""
 }
 
-func (m *CreateContinuousQueryCmd) GetQuery() string {
+func (m *MetaCreateContinuousQueryCmd) GetQuery() string {
 	if m != nil {
 		return m.Query
 	}
 	return ""
 }
 
-type DropContinuousQueryCmd struct {
+type MetaDropContinuousQueryCmd struct {
 	Database string `protobuf:"bytes,1,opt,name=database" json:"database,omitempty"`
 	Name     string `protobuf:"bytes,2,opt,name=name" json:"name,omitempty"`
 }
 
-func (m *DropContinuousQueryCmd) Reset()                    { *m = DropContinuousQueryCmd{} }
-func (m *DropContinuousQueryCmd) String() string            { return proto.CompactTextString(m) }
-func (*DropContinuousQueryCmd) ProtoMessage()               {}
-func (*DropContinuousQueryCmd) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{6} }
+func (m *MetaDropContinuousQueryCmd) Reset()                    { *m = MetaDropContinuousQueryCmd{} }
+func (m *MetaDropContinuousQueryCmd) String() string            { return proto.CompactTextString(m) }
+func (*MetaDropContinuousQueryCmd) ProtoMessage()               {}
+func (*MetaDropContinuousQueryCmd) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{7} }
 
-func (m *DropContinuousQueryCmd) GetDatabase() string {
+func (m *MetaDropContinuousQueryCmd) GetDatabase() string {
 	if m != nil {
 		return m.Database
 	}
 	return ""
 }
 
-func (m *DropContinuousQueryCmd) GetName() string {
+func (m *MetaDropContinuousQueryCmd) GetName() string {
 	if m != nil {
 		return m.Name
 	}
@@ -246,74 +298,76 @@ func (m *DropContinuousQueryCmd) GetName() string {
 }
 
 // database cmd
-type DatabaseCmd struct {
+type MetaDatabaseCmd struct {
 	Name string `protobuf:"bytes,1,opt,name=name" json:"name,omitempty"`
 }
 
-func (m *DatabaseCmd) Reset()                    { *m = DatabaseCmd{} }
-func (m *DatabaseCmd) String() string            { return proto.CompactTextString(m) }
-func (*DatabaseCmd) ProtoMessage()               {}
-func (*DatabaseCmd) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{7} }
+func (m *MetaDatabaseCmd) Reset()                    { *m = MetaDatabaseCmd{} }
+func (m *MetaDatabaseCmd) String() string            { return proto.CompactTextString(m) }
+func (*MetaDatabaseCmd) ProtoMessage()               {}
+func (*MetaDatabaseCmd) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{8} }
 
-func (m *DatabaseCmd) GetName() string {
+func (m *MetaDatabaseCmd) GetName() string {
 	if m != nil {
 		return m.Name
 	}
 	return ""
 }
 
-type CreateDatabaseCmd struct {
+type MetaCreateDatabaseCmd struct {
 	Name string `protobuf:"bytes,1,opt,name=name" json:"name,omitempty"`
 }
 
-func (m *CreateDatabaseCmd) Reset()                    { *m = CreateDatabaseCmd{} }
-func (m *CreateDatabaseCmd) String() string            { return proto.CompactTextString(m) }
-func (*CreateDatabaseCmd) ProtoMessage()               {}
-func (*CreateDatabaseCmd) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{8} }
+func (m *MetaCreateDatabaseCmd) Reset()                    { *m = MetaCreateDatabaseCmd{} }
+func (m *MetaCreateDatabaseCmd) String() string            { return proto.CompactTextString(m) }
+func (*MetaCreateDatabaseCmd) ProtoMessage()               {}
+func (*MetaCreateDatabaseCmd) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{9} }
 
-func (m *CreateDatabaseCmd) GetName() string {
+func (m *MetaCreateDatabaseCmd) GetName() string {
 	if m != nil {
 		return m.Name
 	}
 	return ""
 }
 
-type CreateDatabaseWithRetentionPolicyCmd struct {
+type MetaCreateDatabaseWithRetentionPolicyCmd struct {
 	Name string               `protobuf:"bytes,1,opt,name=name" json:"name,omitempty"`
 	Spec *RetentionPolicySpec `protobuf:"bytes,2,opt,name=spec" json:"spec,omitempty"`
 }
 
-func (m *CreateDatabaseWithRetentionPolicyCmd) Reset()         { *m = CreateDatabaseWithRetentionPolicyCmd{} }
-func (m *CreateDatabaseWithRetentionPolicyCmd) String() string { return proto.CompactTextString(m) }
-func (*CreateDatabaseWithRetentionPolicyCmd) ProtoMessage()    {}
-func (*CreateDatabaseWithRetentionPolicyCmd) Descriptor() ([]byte, []int) {
-	return fileDescriptor0, []int{9}
+func (m *MetaCreateDatabaseWithRetentionPolicyCmd) Reset() {
+	*m = MetaCreateDatabaseWithRetentionPolicyCmd{}
+}
+func (m *MetaCreateDatabaseWithRetentionPolicyCmd) String() string { return proto.CompactTextString(m) }
+func (*MetaCreateDatabaseWithRetentionPolicyCmd) ProtoMessage()    {}
+func (*MetaCreateDatabaseWithRetentionPolicyCmd) Descriptor() ([]byte, []int) {
+	return fileDescriptor0, []int{10}
 }
 
-func (m *CreateDatabaseWithRetentionPolicyCmd) GetName() string {
+func (m *MetaCreateDatabaseWithRetentionPolicyCmd) GetName() string {
 	if m != nil {
 		return m.Name
 	}
 	return ""
 }
 
-func (m *CreateDatabaseWithRetentionPolicyCmd) GetSpec() *RetentionPolicySpec {
+func (m *MetaCreateDatabaseWithRetentionPolicyCmd) GetSpec() *RetentionPolicySpec {
 	if m != nil {
 		return m.Spec
 	}
 	return nil
 }
 
-type DropDatabaseCmd struct {
+type MetaDropDatabaseCmd struct {
 	Name string `protobuf:"bytes,1,opt,name=name" json:"name,omitempty"`
 }
 
-func (m *DropDatabaseCmd) Reset()                    { *m = DropDatabaseCmd{} }
-func (m *DropDatabaseCmd) String() string            { return proto.CompactTextString(m) }
-func (*DropDatabaseCmd) ProtoMessage()               {}
-func (*DropDatabaseCmd) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{10} }
+func (m *MetaDropDatabaseCmd) Reset()                    { *m = MetaDropDatabaseCmd{} }
+func (m *MetaDropDatabaseCmd) String() string            { return proto.CompactTextString(m) }
+func (*MetaDropDatabaseCmd) ProtoMessage()               {}
+func (*MetaDropDatabaseCmd) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{11} }
 
-func (m *DropDatabaseCmd) GetName() string {
+func (m *MetaDropDatabaseCmd) GetName() string {
 	if m != nil {
 		return m.Name
 	}
@@ -321,120 +375,120 @@ func (m *DropDatabaseCmd) GetName() string {
 }
 
 // retention policy
-type CreateRetentionPolicyCmd struct {
+type MetaCreateRetentionPolicyCmd struct {
 	Database    string               `protobuf:"bytes,1,opt,name=database" json:"database,omitempty"`
 	Spec        *RetentionPolicySpec `protobuf:"bytes,2,opt,name=spec" json:"spec,omitempty"`
 	MakeDefault bool                 `protobuf:"varint,3,opt,name=makeDefault" json:"makeDefault,omitempty"`
 }
 
-func (m *CreateRetentionPolicyCmd) Reset()                    { *m = CreateRetentionPolicyCmd{} }
-func (m *CreateRetentionPolicyCmd) String() string            { return proto.CompactTextString(m) }
-func (*CreateRetentionPolicyCmd) ProtoMessage()               {}
-func (*CreateRetentionPolicyCmd) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{11} }
+func (m *MetaCreateRetentionPolicyCmd) Reset()                    { *m = MetaCreateRetentionPolicyCmd{} }
+func (m *MetaCreateRetentionPolicyCmd) String() string            { return proto.CompactTextString(m) }
+func (*MetaCreateRetentionPolicyCmd) ProtoMessage()               {}
+func (*MetaCreateRetentionPolicyCmd) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{12} }
 
-func (m *CreateRetentionPolicyCmd) GetDatabase() string {
+func (m *MetaCreateRetentionPolicyCmd) GetDatabase() string {
 	if m != nil {
 		return m.Database
 	}
 	return ""
 }
 
-func (m *CreateRetentionPolicyCmd) GetSpec() *RetentionPolicySpec {
+func (m *MetaCreateRetentionPolicyCmd) GetSpec() *RetentionPolicySpec {
 	if m != nil {
 		return m.Spec
 	}
 	return nil
 }
 
-func (m *CreateRetentionPolicyCmd) GetMakeDefault() bool {
+func (m *MetaCreateRetentionPolicyCmd) GetMakeDefault() bool {
 	if m != nil {
 		return m.MakeDefault
 	}
 	return false
 }
 
-type RetentionPolicyCmd struct {
+type MetaRetentionPolicyCmd struct {
 	Database string `protobuf:"bytes,1,opt,name=database" json:"database,omitempty"`
 	Name     string `protobuf:"bytes,2,opt,name=name" json:"name,omitempty"`
 }
 
-func (m *RetentionPolicyCmd) Reset()                    { *m = RetentionPolicyCmd{} }
-func (m *RetentionPolicyCmd) String() string            { return proto.CompactTextString(m) }
-func (*RetentionPolicyCmd) ProtoMessage()               {}
-func (*RetentionPolicyCmd) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{12} }
+func (m *MetaRetentionPolicyCmd) Reset()                    { *m = MetaRetentionPolicyCmd{} }
+func (m *MetaRetentionPolicyCmd) String() string            { return proto.CompactTextString(m) }
+func (*MetaRetentionPolicyCmd) ProtoMessage()               {}
+func (*MetaRetentionPolicyCmd) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{13} }
 
-func (m *RetentionPolicyCmd) GetDatabase() string {
+func (m *MetaRetentionPolicyCmd) GetDatabase() string {
 	if m != nil {
 		return m.Database
 	}
 	return ""
 }
 
-func (m *RetentionPolicyCmd) GetName() string {
+func (m *MetaRetentionPolicyCmd) GetName() string {
 	if m != nil {
 		return m.Name
 	}
 	return ""
 }
 
-type DropRetentionPolicyCmd struct {
+type MetaDropRetentionPolicyCmd struct {
 	Database string `protobuf:"bytes,1,opt,name=database" json:"database,omitempty"`
 	Name     string `protobuf:"bytes,2,opt,name=name" json:"name,omitempty"`
 }
 
-func (m *DropRetentionPolicyCmd) Reset()                    { *m = DropRetentionPolicyCmd{} }
-func (m *DropRetentionPolicyCmd) String() string            { return proto.CompactTextString(m) }
-func (*DropRetentionPolicyCmd) ProtoMessage()               {}
-func (*DropRetentionPolicyCmd) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{13} }
+func (m *MetaDropRetentionPolicyCmd) Reset()                    { *m = MetaDropRetentionPolicyCmd{} }
+func (m *MetaDropRetentionPolicyCmd) String() string            { return proto.CompactTextString(m) }
+func (*MetaDropRetentionPolicyCmd) ProtoMessage()               {}
+func (*MetaDropRetentionPolicyCmd) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{14} }
 
-func (m *DropRetentionPolicyCmd) GetDatabase() string {
+func (m *MetaDropRetentionPolicyCmd) GetDatabase() string {
 	if m != nil {
 		return m.Database
 	}
 	return ""
 }
 
-func (m *DropRetentionPolicyCmd) GetName() string {
+func (m *MetaDropRetentionPolicyCmd) GetName() string {
 	if m != nil {
 		return m.Name
 	}
 	return ""
 }
 
-type UpdateRetentionPolicyCmd struct {
+type MetaUpdateRetentionPolicyCmd struct {
 	Database    string                 `protobuf:"bytes,1,opt,name=database" json:"database,omitempty"`
 	Name        string                 `protobuf:"bytes,2,opt,name=name" json:"name,omitempty"`
 	Update      *RetentionPolicyUpdate `protobuf:"bytes,3,opt,name=update" json:"update,omitempty"`
 	MakeDefault bool                   `protobuf:"varint,4,opt,name=makeDefault" json:"makeDefault,omitempty"`
 }
 
-func (m *UpdateRetentionPolicyCmd) Reset()                    { *m = UpdateRetentionPolicyCmd{} }
-func (m *UpdateRetentionPolicyCmd) String() string            { return proto.CompactTextString(m) }
-func (*UpdateRetentionPolicyCmd) ProtoMessage()               {}
-func (*UpdateRetentionPolicyCmd) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{14} }
+func (m *MetaUpdateRetentionPolicyCmd) Reset()                    { *m = MetaUpdateRetentionPolicyCmd{} }
+func (m *MetaUpdateRetentionPolicyCmd) String() string            { return proto.CompactTextString(m) }
+func (*MetaUpdateRetentionPolicyCmd) ProtoMessage()               {}
+func (*MetaUpdateRetentionPolicyCmd) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{15} }
 
-func (m *UpdateRetentionPolicyCmd) GetDatabase() string {
+func (m *MetaUpdateRetentionPolicyCmd) GetDatabase() string {
 	if m != nil {
 		return m.Database
 	}
 	return ""
 }
 
-func (m *UpdateRetentionPolicyCmd) GetName() string {
+func (m *MetaUpdateRetentionPolicyCmd) GetName() string {
 	if m != nil {
 		return m.Name
 	}
 	return ""
 }
 
-func (m *UpdateRetentionPolicyCmd) GetUpdate() *RetentionPolicyUpdate {
+func (m *MetaUpdateRetentionPolicyCmd) GetUpdate() *RetentionPolicyUpdate {
 	if m != nil {
 		return m.Update
 	}
 	return nil
 }
 
-func (m *UpdateRetentionPolicyCmd) GetMakeDefault() bool {
+func (m *MetaUpdateRetentionPolicyCmd) GetMakeDefault() bool {
 	if m != nil {
 		return m.MakeDefault
 	}
@@ -442,7 +496,7 @@ func (m *UpdateRetentionPolicyCmd) GetMakeDefault() bool {
 }
 
 // subsription
-type CreateSubscriptionCmd struct {
+type MetaCreateSubscriptionCmd struct {
 	Database     string   `protobuf:"bytes,1,opt,name=database" json:"database,omitempty"`
 	Rp           string   `protobuf:"bytes,2,opt,name=rp" json:"rp,omitempty"`
 	Name         string   `protobuf:"bytes,3,opt,name=name" json:"name,omitempty"`
@@ -450,72 +504,72 @@ type CreateSubscriptionCmd struct {
 	Destinations []string `protobuf:"bytes,5,rep,name=destinations" json:"destinations,omitempty"`
 }
 
-func (m *CreateSubscriptionCmd) Reset()                    { *m = CreateSubscriptionCmd{} }
-func (m *CreateSubscriptionCmd) String() string            { return proto.CompactTextString(m) }
-func (*CreateSubscriptionCmd) ProtoMessage()               {}
-func (*CreateSubscriptionCmd) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{15} }
+func (m *MetaCreateSubscriptionCmd) Reset()                    { *m = MetaCreateSubscriptionCmd{} }
+func (m *MetaCreateSubscriptionCmd) String() string            { return proto.CompactTextString(m) }
+func (*MetaCreateSubscriptionCmd) ProtoMessage()               {}
+func (*MetaCreateSubscriptionCmd) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{16} }
 
-func (m *CreateSubscriptionCmd) GetDatabase() string {
+func (m *MetaCreateSubscriptionCmd) GetDatabase() string {
 	if m != nil {
 		return m.Database
 	}
 	return ""
 }
 
-func (m *CreateSubscriptionCmd) GetRp() string {
+func (m *MetaCreateSubscriptionCmd) GetRp() string {
 	if m != nil {
 		return m.Rp
 	}
 	return ""
 }
 
-func (m *CreateSubscriptionCmd) GetName() string {
+func (m *MetaCreateSubscriptionCmd) GetName() string {
 	if m != nil {
 		return m.Name
 	}
 	return ""
 }
 
-func (m *CreateSubscriptionCmd) GetMode() string {
+func (m *MetaCreateSubscriptionCmd) GetMode() string {
 	if m != nil {
 		return m.Mode
 	}
 	return ""
 }
 
-func (m *CreateSubscriptionCmd) GetDestinations() []string {
+func (m *MetaCreateSubscriptionCmd) GetDestinations() []string {
 	if m != nil {
 		return m.Destinations
 	}
 	return nil
 }
 
-type DropSubscriptionCmd struct {
+type MetaDropSubscriptionCmd struct {
 	Database string `protobuf:"bytes,1,opt,name=database" json:"database,omitempty"`
 	Rp       string `protobuf:"bytes,2,opt,name=rp" json:"rp,omitempty"`
 	Name     string `protobuf:"bytes,3,opt,name=name" json:"name,omitempty"`
 }
 
-func (m *DropSubscriptionCmd) Reset()                    { *m = DropSubscriptionCmd{} }
-func (m *DropSubscriptionCmd) String() string            { return proto.CompactTextString(m) }
-func (*DropSubscriptionCmd) ProtoMessage()               {}
-func (*DropSubscriptionCmd) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{16} }
+func (m *MetaDropSubscriptionCmd) Reset()                    { *m = MetaDropSubscriptionCmd{} }
+func (m *MetaDropSubscriptionCmd) String() string            { return proto.CompactTextString(m) }
+func (*MetaDropSubscriptionCmd) ProtoMessage()               {}
+func (*MetaDropSubscriptionCmd) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{17} }
 
-func (m *DropSubscriptionCmd) GetDatabase() string {
+func (m *MetaDropSubscriptionCmd) GetDatabase() string {
 	if m != nil {
 		return m.Database
 	}
 	return ""
 }
 
-func (m *DropSubscriptionCmd) GetRp() string {
+func (m *MetaDropSubscriptionCmd) GetRp() string {
 	if m != nil {
 		return m.Rp
 	}
 	return ""
 }
 
-func (m *DropSubscriptionCmd) GetName() string {
+func (m *MetaDropSubscriptionCmd) GetName() string {
 	if m != nil {
 		return m.Name
 	}
@@ -523,88 +577,88 @@ func (m *DropSubscriptionCmd) GetName() string {
 }
 
 // user cmd
-type UserCmd struct {
+type MetaUserCmd struct {
 	Name string `protobuf:"bytes,1,opt,name=name" json:"name,omitempty"`
 }
 
-func (m *UserCmd) Reset()                    { *m = UserCmd{} }
-func (m *UserCmd) String() string            { return proto.CompactTextString(m) }
-func (*UserCmd) ProtoMessage()               {}
-func (*UserCmd) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{17} }
+func (m *MetaUserCmd) Reset()                    { *m = MetaUserCmd{} }
+func (m *MetaUserCmd) String() string            { return proto.CompactTextString(m) }
+func (*MetaUserCmd) ProtoMessage()               {}
+func (*MetaUserCmd) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{18} }
 
-func (m *UserCmd) GetName() string {
+func (m *MetaUserCmd) GetName() string {
 	if m != nil {
 		return m.Name
 	}
 	return ""
 }
 
-type CreateUserCmd struct {
+type MetaCreateUserCmd struct {
 	Name     string `protobuf:"bytes,1,opt,name=name" json:"name,omitempty"`
 	Password string `protobuf:"bytes,2,opt,name=password" json:"password,omitempty"`
 	Admin    bool   `protobuf:"varint,3,opt,name=admin" json:"admin,omitempty"`
 }
 
-func (m *CreateUserCmd) Reset()                    { *m = CreateUserCmd{} }
-func (m *CreateUserCmd) String() string            { return proto.CompactTextString(m) }
-func (*CreateUserCmd) ProtoMessage()               {}
-func (*CreateUserCmd) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{18} }
+func (m *MetaCreateUserCmd) Reset()                    { *m = MetaCreateUserCmd{} }
+func (m *MetaCreateUserCmd) String() string            { return proto.CompactTextString(m) }
+func (*MetaCreateUserCmd) ProtoMessage()               {}
+func (*MetaCreateUserCmd) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{19} }
 
-func (m *CreateUserCmd) GetName() string {
+func (m *MetaCreateUserCmd) GetName() string {
 	if m != nil {
 		return m.Name
 	}
 	return ""
 }
 
-func (m *CreateUserCmd) GetPassword() string {
+func (m *MetaCreateUserCmd) GetPassword() string {
 	if m != nil {
 		return m.Password
 	}
 	return ""
 }
 
-func (m *CreateUserCmd) GetAdmin() bool {
+func (m *MetaCreateUserCmd) GetAdmin() bool {
 	if m != nil {
 		return m.Admin
 	}
 	return false
 }
 
-type DropUserCmd struct {
+type MetaDropUserCmd struct {
 	Name string `protobuf:"bytes,1,opt,name=name" json:"name,omitempty"`
 }
 
-func (m *DropUserCmd) Reset()                    { *m = DropUserCmd{} }
-func (m *DropUserCmd) String() string            { return proto.CompactTextString(m) }
-func (*DropUserCmd) ProtoMessage()               {}
-func (*DropUserCmd) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{19} }
+func (m *MetaDropUserCmd) Reset()                    { *m = MetaDropUserCmd{} }
+func (m *MetaDropUserCmd) String() string            { return proto.CompactTextString(m) }
+func (*MetaDropUserCmd) ProtoMessage()               {}
+func (*MetaDropUserCmd) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{20} }
 
-func (m *DropUserCmd) GetName() string {
+func (m *MetaDropUserCmd) GetName() string {
 	if m != nil {
 		return m.Name
 	}
 	return ""
 }
 
-type UpdateUserCmd struct {
+type MetaUpdateUserCmd struct {
 	Name     string `protobuf:"bytes,1,opt,name=name" json:"name,omitempty"`
 	Password string `protobuf:"bytes,2,opt,name=password" json:"password,omitempty"`
 }
 
-func (m *UpdateUserCmd) Reset()                    { *m = UpdateUserCmd{} }
-func (m *UpdateUserCmd) String() string            { return proto.CompactTextString(m) }
-func (*UpdateUserCmd) ProtoMessage()               {}
-func (*UpdateUserCmd) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{20} }
+func (m *MetaUpdateUserCmd) Reset()                    { *m = MetaUpdateUserCmd{} }
+func (m *MetaUpdateUserCmd) String() string            { return proto.CompactTextString(m) }
+func (*MetaUpdateUserCmd) ProtoMessage()               {}
+func (*MetaUpdateUserCmd) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{21} }
 
-func (m *UpdateUserCmd) GetName() string {
+func (m *MetaUpdateUserCmd) GetName() string {
 	if m != nil {
 		return m.Name
 	}
 	return ""
 }
 
-func (m *UpdateUserCmd) GetPassword() string {
+func (m *MetaUpdateUserCmd) GetPassword() string {
 	if m != nil {
 		return m.Password
 	}
@@ -612,120 +666,120 @@ func (m *UpdateUserCmd) GetPassword() string {
 }
 
 // user privilege
-type SetAdminPrivilegeCmd struct {
+type MetaSetAdminPrivilegeCmd struct {
 	Username string `protobuf:"bytes,1,opt,name=username" json:"username,omitempty"`
 	Admin    bool   `protobuf:"varint,2,opt,name=admin" json:"admin,omitempty"`
 }
 
-func (m *SetAdminPrivilegeCmd) Reset()                    { *m = SetAdminPrivilegeCmd{} }
-func (m *SetAdminPrivilegeCmd) String() string            { return proto.CompactTextString(m) }
-func (*SetAdminPrivilegeCmd) ProtoMessage()               {}
-func (*SetAdminPrivilegeCmd) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{21} }
+func (m *MetaSetAdminPrivilegeCmd) Reset()                    { *m = MetaSetAdminPrivilegeCmd{} }
+func (m *MetaSetAdminPrivilegeCmd) String() string            { return proto.CompactTextString(m) }
+func (*MetaSetAdminPrivilegeCmd) ProtoMessage()               {}
+func (*MetaSetAdminPrivilegeCmd) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{22} }
 
-func (m *SetAdminPrivilegeCmd) GetUsername() string {
+func (m *MetaSetAdminPrivilegeCmd) GetUsername() string {
 	if m != nil {
 		return m.Username
 	}
 	return ""
 }
 
-func (m *SetAdminPrivilegeCmd) GetAdmin() bool {
+func (m *MetaSetAdminPrivilegeCmd) GetAdmin() bool {
 	if m != nil {
 		return m.Admin
 	}
 	return false
 }
 
-type SetPrivilegeCmd struct {
+type MetaSetPrivilegeCmd struct {
 	Username  string `protobuf:"bytes,1,opt,name=username" json:"username,omitempty"`
 	Database  string `protobuf:"bytes,2,opt,name=database" json:"database,omitempty"`
 	Privilege int64  `protobuf:"varint,3,opt,name=privilege" json:"privilege,omitempty"`
 }
 
-func (m *SetPrivilegeCmd) Reset()                    { *m = SetPrivilegeCmd{} }
-func (m *SetPrivilegeCmd) String() string            { return proto.CompactTextString(m) }
-func (*SetPrivilegeCmd) ProtoMessage()               {}
-func (*SetPrivilegeCmd) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{22} }
+func (m *MetaSetPrivilegeCmd) Reset()                    { *m = MetaSetPrivilegeCmd{} }
+func (m *MetaSetPrivilegeCmd) String() string            { return proto.CompactTextString(m) }
+func (*MetaSetPrivilegeCmd) ProtoMessage()               {}
+func (*MetaSetPrivilegeCmd) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{23} }
 
-func (m *SetPrivilegeCmd) GetUsername() string {
+func (m *MetaSetPrivilegeCmd) GetUsername() string {
 	if m != nil {
 		return m.Username
 	}
 	return ""
 }
 
-func (m *SetPrivilegeCmd) GetDatabase() string {
+func (m *MetaSetPrivilegeCmd) GetDatabase() string {
 	if m != nil {
 		return m.Database
 	}
 	return ""
 }
 
-func (m *SetPrivilegeCmd) GetPrivilege() int64 {
+func (m *MetaSetPrivilegeCmd) GetPrivilege() int64 {
 	if m != nil {
 		return m.Privilege
 	}
 	return 0
 }
 
-type UserPrivilegesCmd struct {
+type MetaUserPrivilegesCmd struct {
 	Username string `protobuf:"bytes,1,opt,name=username" json:"username,omitempty"`
 }
 
-func (m *UserPrivilegesCmd) Reset()                    { *m = UserPrivilegesCmd{} }
-func (m *UserPrivilegesCmd) String() string            { return proto.CompactTextString(m) }
-func (*UserPrivilegesCmd) ProtoMessage()               {}
-func (*UserPrivilegesCmd) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{23} }
+func (m *MetaUserPrivilegesCmd) Reset()                    { *m = MetaUserPrivilegesCmd{} }
+func (m *MetaUserPrivilegesCmd) String() string            { return proto.CompactTextString(m) }
+func (*MetaUserPrivilegesCmd) ProtoMessage()               {}
+func (*MetaUserPrivilegesCmd) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{24} }
 
-func (m *UserPrivilegesCmd) GetUsername() string {
+func (m *MetaUserPrivilegesCmd) GetUsername() string {
 	if m != nil {
 		return m.Username
 	}
 	return ""
 }
 
-type UserPrivilegeCmd struct {
+type MetaUserPrivilegeCmd struct {
 	Username string `protobuf:"bytes,1,opt,name=username" json:"username,omitempty"`
 	Database string `protobuf:"bytes,2,opt,name=database" json:"database,omitempty"`
 }
 
-func (m *UserPrivilegeCmd) Reset()                    { *m = UserPrivilegeCmd{} }
-func (m *UserPrivilegeCmd) String() string            { return proto.CompactTextString(m) }
-func (*UserPrivilegeCmd) ProtoMessage()               {}
-func (*UserPrivilegeCmd) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{24} }
+func (m *MetaUserPrivilegeCmd) Reset()                    { *m = MetaUserPrivilegeCmd{} }
+func (m *MetaUserPrivilegeCmd) String() string            { return proto.CompactTextString(m) }
+func (*MetaUserPrivilegeCmd) ProtoMessage()               {}
+func (*MetaUserPrivilegeCmd) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{25} }
 
-func (m *UserPrivilegeCmd) GetUsername() string {
+func (m *MetaUserPrivilegeCmd) GetUsername() string {
 	if m != nil {
 		return m.Username
 	}
 	return ""
 }
 
-func (m *UserPrivilegeCmd) GetDatabase() string {
+func (m *MetaUserPrivilegeCmd) GetDatabase() string {
 	if m != nil {
 		return m.Database
 	}
 	return ""
 }
 
-type AuthenticateCmd struct {
+type MetaAuthenticateCmd struct {
 	Username string `protobuf:"bytes,1,opt,name=username" json:"username,omitempty"`
 	Password string `protobuf:"bytes,2,opt,name=password" json:"password,omitempty"`
 }
 
-func (m *AuthenticateCmd) Reset()                    { *m = AuthenticateCmd{} }
-func (m *AuthenticateCmd) String() string            { return proto.CompactTextString(m) }
-func (*AuthenticateCmd) ProtoMessage()               {}
-func (*AuthenticateCmd) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{25} }
+func (m *MetaAuthenticateCmd) Reset()                    { *m = MetaAuthenticateCmd{} }
+func (m *MetaAuthenticateCmd) String() string            { return proto.CompactTextString(m) }
+func (*MetaAuthenticateCmd) ProtoMessage()               {}
+func (*MetaAuthenticateCmd) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{26} }
 
-func (m *AuthenticateCmd) GetUsername() string {
+func (m *MetaAuthenticateCmd) GetUsername() string {
 	if m != nil {
 		return m.Username
 	}
 	return ""
 }
 
-func (m *AuthenticateCmd) GetPassword() string {
+func (m *MetaAuthenticateCmd) GetPassword() string {
 	if m != nil {
 		return m.Password
 	}
@@ -733,196 +787,468 @@ func (m *AuthenticateCmd) GetPassword() string {
 }
 
 // shard
-type ShardGroupsByTimeRangeCmd struct {
+type MetaShardGroupsByTimeRangeCmd struct {
 	Database string `protobuf:"bytes,1,opt,name=database" json:"database,omitempty"`
 	Policy   string `protobuf:"bytes,2,opt,name=policy" json:"policy,omitempty"`
 	Tmin     int64  `protobuf:"varint,3,opt,name=tmin" json:"tmin,omitempty"`
 	Tmax     int64  `protobuf:"varint,4,opt,name=tmax" json:"tmax,omitempty"`
 }
 
-func (m *ShardGroupsByTimeRangeCmd) Reset()                    { *m = ShardGroupsByTimeRangeCmd{} }
-func (m *ShardGroupsByTimeRangeCmd) String() string            { return proto.CompactTextString(m) }
-func (*ShardGroupsByTimeRangeCmd) ProtoMessage()               {}
-func (*ShardGroupsByTimeRangeCmd) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{26} }
+func (m *MetaShardGroupsByTimeRangeCmd) Reset()                    { *m = MetaShardGroupsByTimeRangeCmd{} }
+func (m *MetaShardGroupsByTimeRangeCmd) String() string            { return proto.CompactTextString(m) }
+func (*MetaShardGroupsByTimeRangeCmd) ProtoMessage()               {}
+func (*MetaShardGroupsByTimeRangeCmd) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{27} }
 
-func (m *ShardGroupsByTimeRangeCmd) GetDatabase() string {
+func (m *MetaShardGroupsByTimeRangeCmd) GetDatabase() string {
 	if m != nil {
 		return m.Database
 	}
 	return ""
 }
 
-func (m *ShardGroupsByTimeRangeCmd) GetPolicy() string {
+func (m *MetaShardGroupsByTimeRangeCmd) GetPolicy() string {
 	if m != nil {
 		return m.Policy
 	}
 	return ""
 }
 
-func (m *ShardGroupsByTimeRangeCmd) GetTmin() int64 {
+func (m *MetaShardGroupsByTimeRangeCmd) GetTmin() int64 {
 	if m != nil {
 		return m.Tmin
 	}
 	return 0
 }
 
-func (m *ShardGroupsByTimeRangeCmd) GetTmax() int64 {
+func (m *MetaShardGroupsByTimeRangeCmd) GetTmax() int64 {
 	if m != nil {
 		return m.Tmax
 	}
 	return 0
 }
 
-type ShardsByTimeRangeCmd struct {
-	SourceData []byte `protobuf:"bytes,1,opt,name=sourceData,proto3" json:"sourceData,omitempty"`
-	Tmin       int64  `protobuf:"varint,2,opt,name=tmin" json:"tmin,omitempty"`
-	Tmax       int64  `protobuf:"varint,3,opt,name=tmax" json:"tmax,omitempty"`
-}
-
-func (m *ShardsByTimeRangeCmd) Reset()                    { *m = ShardsByTimeRangeCmd{} }
-func (m *ShardsByTimeRangeCmd) String() string            { return proto.CompactTextString(m) }
-func (*ShardsByTimeRangeCmd) ProtoMessage()               {}
-func (*ShardsByTimeRangeCmd) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{27} }
-
-func (m *ShardsByTimeRangeCmd) GetSourceData() []byte {
-	if m != nil {
-		return m.SourceData
-	}
-	return nil
-}
-
-func (m *ShardsByTimeRangeCmd) GetTmin() int64 {
-	if m != nil {
-		return m.Tmin
-	}
-	return 0
-}
-
-func (m *ShardsByTimeRangeCmd) GetTmax() int64 {
-	if m != nil {
-		return m.Tmax
-	}
-	return 0
-}
-
-type DropShardCmd struct {
+type MetaDropShardCmd struct {
 	Id uint64 `protobuf:"varint,1,opt,name=id" json:"id,omitempty"`
 }
 
-func (m *DropShardCmd) Reset()                    { *m = DropShardCmd{} }
-func (m *DropShardCmd) String() string            { return proto.CompactTextString(m) }
-func (*DropShardCmd) ProtoMessage()               {}
-func (*DropShardCmd) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{28} }
+func (m *MetaDropShardCmd) Reset()                    { *m = MetaDropShardCmd{} }
+func (m *MetaDropShardCmd) String() string            { return proto.CompactTextString(m) }
+func (*MetaDropShardCmd) ProtoMessage()               {}
+func (*MetaDropShardCmd) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{28} }
 
-func (m *DropShardCmd) GetId() uint64 {
+func (m *MetaDropShardCmd) GetId() uint64 {
 	if m != nil {
 		return m.Id
 	}
 	return 0
 }
 
-type CreateShardGroupCmd struct {
+type MetaCreateShardGroupCmd struct {
 	Database  string `protobuf:"bytes,1,opt,name=database" json:"database,omitempty"`
 	Policy    string `protobuf:"bytes,2,opt,name=policy" json:"policy,omitempty"`
 	Timestamp int64  `protobuf:"varint,3,opt,name=timestamp" json:"timestamp,omitempty"`
 }
 
-func (m *CreateShardGroupCmd) Reset()                    { *m = CreateShardGroupCmd{} }
-func (m *CreateShardGroupCmd) String() string            { return proto.CompactTextString(m) }
-func (*CreateShardGroupCmd) ProtoMessage()               {}
-func (*CreateShardGroupCmd) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{29} }
+func (m *MetaCreateShardGroupCmd) Reset()                    { *m = MetaCreateShardGroupCmd{} }
+func (m *MetaCreateShardGroupCmd) String() string            { return proto.CompactTextString(m) }
+func (*MetaCreateShardGroupCmd) ProtoMessage()               {}
+func (*MetaCreateShardGroupCmd) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{29} }
 
-func (m *CreateShardGroupCmd) GetDatabase() string {
+func (m *MetaCreateShardGroupCmd) GetDatabase() string {
 	if m != nil {
 		return m.Database
 	}
 	return ""
 }
 
-func (m *CreateShardGroupCmd) GetPolicy() string {
+func (m *MetaCreateShardGroupCmd) GetPolicy() string {
 	if m != nil {
 		return m.Policy
 	}
 	return ""
 }
 
-func (m *CreateShardGroupCmd) GetTimestamp() int64 {
+func (m *MetaCreateShardGroupCmd) GetTimestamp() int64 {
 	if m != nil {
 		return m.Timestamp
 	}
 	return 0
 }
 
-type DeleteShardGroupCmd struct {
+type MetaDeleteShardGroupCmd struct {
 	Database string `protobuf:"bytes,1,opt,name=database" json:"database,omitempty"`
 	Policy   string `protobuf:"bytes,2,opt,name=policy" json:"policy,omitempty"`
 	Id       uint64 `protobuf:"varint,3,opt,name=id" json:"id,omitempty"`
 }
 
-func (m *DeleteShardGroupCmd) Reset()                    { *m = DeleteShardGroupCmd{} }
-func (m *DeleteShardGroupCmd) String() string            { return proto.CompactTextString(m) }
-func (*DeleteShardGroupCmd) ProtoMessage()               {}
-func (*DeleteShardGroupCmd) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{30} }
+func (m *MetaDeleteShardGroupCmd) Reset()                    { *m = MetaDeleteShardGroupCmd{} }
+func (m *MetaDeleteShardGroupCmd) String() string            { return proto.CompactTextString(m) }
+func (*MetaDeleteShardGroupCmd) ProtoMessage()               {}
+func (*MetaDeleteShardGroupCmd) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{30} }
 
-func (m *DeleteShardGroupCmd) GetDatabase() string {
+func (m *MetaDeleteShardGroupCmd) GetDatabase() string {
 	if m != nil {
 		return m.Database
 	}
 	return ""
 }
 
-func (m *DeleteShardGroupCmd) GetPolicy() string {
+func (m *MetaDeleteShardGroupCmd) GetPolicy() string {
 	if m != nil {
 		return m.Policy
 	}
 	return ""
 }
 
-func (m *DeleteShardGroupCmd) GetId() uint64 {
+func (m *MetaDeleteShardGroupCmd) GetId() uint64 {
 	if m != nil {
 		return m.Id
 	}
 	return 0
 }
 
-type PrecreateShardGroupsCmd struct {
+type MetaPrecreateShardGroupsCmd struct {
 	From int64 `protobuf:"varint,1,opt,name=from" json:"from,omitempty"`
 	To   int64 `protobuf:"varint,2,opt,name=to" json:"to,omitempty"`
 }
 
-func (m *PrecreateShardGroupsCmd) Reset()                    { *m = PrecreateShardGroupsCmd{} }
-func (m *PrecreateShardGroupsCmd) String() string            { return proto.CompactTextString(m) }
-func (*PrecreateShardGroupsCmd) ProtoMessage()               {}
-func (*PrecreateShardGroupsCmd) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{31} }
+func (m *MetaPrecreateShardGroupsCmd) Reset()                    { *m = MetaPrecreateShardGroupsCmd{} }
+func (m *MetaPrecreateShardGroupsCmd) String() string            { return proto.CompactTextString(m) }
+func (*MetaPrecreateShardGroupsCmd) ProtoMessage()               {}
+func (*MetaPrecreateShardGroupsCmd) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{31} }
 
-func (m *PrecreateShardGroupsCmd) GetFrom() int64 {
+func (m *MetaPrecreateShardGroupsCmd) GetFrom() int64 {
 	if m != nil {
 		return m.From
 	}
 	return 0
 }
 
-func (m *PrecreateShardGroupsCmd) GetTo() int64 {
+func (m *MetaPrecreateShardGroupsCmd) GetTo() int64 {
 	if m != nil {
 		return m.To
 	}
 	return 0
 }
 
-type ShardOwnerCmd struct {
+type DataCreateShardCmd struct {
+	Database string `protobuf:"bytes,1,opt,name=database" json:"database,omitempty"`
+	Policy   string `protobuf:"bytes,2,opt,name=policy" json:"policy,omitempty"`
+	ShardID  uint64 `protobuf:"varint,3,opt,name=shardID" json:"shardID,omitempty"`
+	Enabled  bool   `protobuf:"varint,4,opt,name=enabled" json:"enabled,omitempty"`
+}
+
+func (m *DataCreateShardCmd) Reset()                    { *m = DataCreateShardCmd{} }
+func (m *DataCreateShardCmd) String() string            { return proto.CompactTextString(m) }
+func (*DataCreateShardCmd) ProtoMessage()               {}
+func (*DataCreateShardCmd) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{32} }
+
+func (m *DataCreateShardCmd) GetDatabase() string {
+	if m != nil {
+		return m.Database
+	}
+	return ""
+}
+
+func (m *DataCreateShardCmd) GetPolicy() string {
+	if m != nil {
+		return m.Policy
+	}
+	return ""
+}
+
+func (m *DataCreateShardCmd) GetShardID() uint64 {
+	if m != nil {
+		return m.ShardID
+	}
+	return 0
+}
+
+func (m *DataCreateShardCmd) GetEnabled() bool {
+	if m != nil {
+		return m.Enabled
+	}
+	return false
+}
+
+type DataWriteToShardCmd struct {
+	ShardID   uint64 `protobuf:"varint,1,opt,name=shardID" json:"shardID,omitempty"`
+	PointData []byte `protobuf:"bytes,2,opt,name=pointData,proto3" json:"pointData,omitempty"`
+}
+
+func (m *DataWriteToShardCmd) Reset()                    { *m = DataWriteToShardCmd{} }
+func (m *DataWriteToShardCmd) String() string            { return proto.CompactTextString(m) }
+func (*DataWriteToShardCmd) ProtoMessage()               {}
+func (*DataWriteToShardCmd) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{33} }
+
+func (m *DataWriteToShardCmd) GetShardID() uint64 {
+	if m != nil {
+		return m.ShardID
+	}
+	return 0
+}
+
+func (m *DataWriteToShardCmd) GetPointData() []byte {
+	if m != nil {
+		return m.PointData
+	}
+	return nil
+}
+
+type DataDeleteShardCmd struct {
 	Id uint64 `protobuf:"varint,1,opt,name=id" json:"id,omitempty"`
 }
 
-func (m *ShardOwnerCmd) Reset()                    { *m = ShardOwnerCmd{} }
-func (m *ShardOwnerCmd) String() string            { return proto.CompactTextString(m) }
-func (*ShardOwnerCmd) ProtoMessage()               {}
-func (*ShardOwnerCmd) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{32} }
+func (m *DataDeleteShardCmd) Reset()                    { *m = DataDeleteShardCmd{} }
+func (m *DataDeleteShardCmd) String() string            { return proto.CompactTextString(m) }
+func (*DataDeleteShardCmd) ProtoMessage()               {}
+func (*DataDeleteShardCmd) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{34} }
 
-func (m *ShardOwnerCmd) GetId() uint64 {
+func (m *DataDeleteShardCmd) GetId() uint64 {
 	if m != nil {
 		return m.Id
 	}
 	return 0
+}
+
+type DataShardGroupCmd struct {
+	Ids []uint64 `protobuf:"varint,1,rep,packed,name=ids" json:"ids,omitempty"`
+}
+
+func (m *DataShardGroupCmd) Reset()                    { *m = DataShardGroupCmd{} }
+func (m *DataShardGroupCmd) String() string            { return proto.CompactTextString(m) }
+func (*DataShardGroupCmd) ProtoMessage()               {}
+func (*DataShardGroupCmd) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{35} }
+
+func (m *DataShardGroupCmd) GetIds() []uint64 {
+	if m != nil {
+		return m.Ids
+	}
+	return nil
+}
+
+type DataDeleteDatabaseCmd struct {
+	Name string `protobuf:"bytes,1,opt,name=name" json:"name,omitempty"`
+}
+
+func (m *DataDeleteDatabaseCmd) Reset()                    { *m = DataDeleteDatabaseCmd{} }
+func (m *DataDeleteDatabaseCmd) String() string            { return proto.CompactTextString(m) }
+func (*DataDeleteDatabaseCmd) ProtoMessage()               {}
+func (*DataDeleteDatabaseCmd) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{36} }
+
+func (m *DataDeleteDatabaseCmd) GetName() string {
+	if m != nil {
+		return m.Name
+	}
+	return ""
+}
+
+type DataDeleteRetentionPolicyCmd struct {
+	Database string `protobuf:"bytes,1,opt,name=database" json:"database,omitempty"`
+	Name     string `protobuf:"bytes,2,opt,name=name" json:"name,omitempty"`
+}
+
+func (m *DataDeleteRetentionPolicyCmd) Reset()                    { *m = DataDeleteRetentionPolicyCmd{} }
+func (m *DataDeleteRetentionPolicyCmd) String() string            { return proto.CompactTextString(m) }
+func (*DataDeleteRetentionPolicyCmd) ProtoMessage()               {}
+func (*DataDeleteRetentionPolicyCmd) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{37} }
+
+func (m *DataDeleteRetentionPolicyCmd) GetDatabase() string {
+	if m != nil {
+		return m.Database
+	}
+	return ""
+}
+
+func (m *DataDeleteRetentionPolicyCmd) GetName() string {
+	if m != nil {
+		return m.Name
+	}
+	return ""
+}
+
+type DataDeleteMeasurementCmd struct {
+	Database string `protobuf:"bytes,1,opt,name=database" json:"database,omitempty"`
+	Name     string `protobuf:"bytes,2,opt,name=name" json:"name,omitempty"`
+}
+
+func (m *DataDeleteMeasurementCmd) Reset()                    { *m = DataDeleteMeasurementCmd{} }
+func (m *DataDeleteMeasurementCmd) String() string            { return proto.CompactTextString(m) }
+func (*DataDeleteMeasurementCmd) ProtoMessage()               {}
+func (*DataDeleteMeasurementCmd) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{38} }
+
+func (m *DataDeleteMeasurementCmd) GetDatabase() string {
+	if m != nil {
+		return m.Database
+	}
+	return ""
+}
+
+func (m *DataDeleteMeasurementCmd) GetName() string {
+	if m != nil {
+		return m.Name
+	}
+	return ""
+}
+
+type DataMeasurementNamesCmd struct {
+	User      *UserInfo `protobuf:"bytes,1,opt,name=user" json:"user,omitempty"`
+	Database  string    `protobuf:"bytes,2,opt,name=database" json:"database,omitempty"`
+	Condition string    `protobuf:"bytes,3,opt,name=condition" json:"condition,omitempty"`
+}
+
+func (m *DataMeasurementNamesCmd) Reset()                    { *m = DataMeasurementNamesCmd{} }
+func (m *DataMeasurementNamesCmd) String() string            { return proto.CompactTextString(m) }
+func (*DataMeasurementNamesCmd) ProtoMessage()               {}
+func (*DataMeasurementNamesCmd) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{39} }
+
+func (m *DataMeasurementNamesCmd) GetUser() *UserInfo {
+	if m != nil {
+		return m.User
+	}
+	return nil
+}
+
+func (m *DataMeasurementNamesCmd) GetDatabase() string {
+	if m != nil {
+		return m.Database
+	}
+	return ""
+}
+
+func (m *DataMeasurementNamesCmd) GetCondition() string {
+	if m != nil {
+		return m.Condition
+	}
+	return ""
+}
+
+type DataMeasurementsCardinalityCmd struct {
+	Database string `protobuf:"bytes,1,opt,name=database" json:"database,omitempty"`
+}
+
+func (m *DataMeasurementsCardinalityCmd) Reset()                    { *m = DataMeasurementsCardinalityCmd{} }
+func (m *DataMeasurementsCardinalityCmd) String() string            { return proto.CompactTextString(m) }
+func (*DataMeasurementsCardinalityCmd) ProtoMessage()               {}
+func (*DataMeasurementsCardinalityCmd) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{40} }
+
+func (m *DataMeasurementsCardinalityCmd) GetDatabase() string {
+	if m != nil {
+		return m.Database
+	}
+	return ""
+}
+
+type DataDeleteSeriesCmd struct {
+	Database   string `protobuf:"bytes,1,opt,name=database" json:"database,omitempty"`
+	SourceData []byte `protobuf:"bytes,2,opt,name=sourceData,proto3" json:"sourceData,omitempty"`
+	Condition  string `protobuf:"bytes,3,opt,name=condition" json:"condition,omitempty"`
+}
+
+func (m *DataDeleteSeriesCmd) Reset()                    { *m = DataDeleteSeriesCmd{} }
+func (m *DataDeleteSeriesCmd) String() string            { return proto.CompactTextString(m) }
+func (*DataDeleteSeriesCmd) ProtoMessage()               {}
+func (*DataDeleteSeriesCmd) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{41} }
+
+func (m *DataDeleteSeriesCmd) GetDatabase() string {
+	if m != nil {
+		return m.Database
+	}
+	return ""
+}
+
+func (m *DataDeleteSeriesCmd) GetSourceData() []byte {
+	if m != nil {
+		return m.SourceData
+	}
+	return nil
+}
+
+func (m *DataDeleteSeriesCmd) GetCondition() string {
+	if m != nil {
+		return m.Condition
+	}
+	return ""
+}
+
+type DataSeriesCardinalityCmd struct {
+	Database string `protobuf:"bytes,1,opt,name=database" json:"database,omitempty"`
+}
+
+func (m *DataSeriesCardinalityCmd) Reset()                    { *m = DataSeriesCardinalityCmd{} }
+func (m *DataSeriesCardinalityCmd) String() string            { return proto.CompactTextString(m) }
+func (*DataSeriesCardinalityCmd) ProtoMessage()               {}
+func (*DataSeriesCardinalityCmd) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{42} }
+
+func (m *DataSeriesCardinalityCmd) GetDatabase() string {
+	if m != nil {
+		return m.Database
+	}
+	return ""
+}
+
+type DataTagKeysCmd struct {
+	User      *UserInfo `protobuf:"bytes,1,opt,name=user" json:"user,omitempty"`
+	ShardIDs  []uint64  `protobuf:"varint,2,rep,packed,name=shardIDs" json:"shardIDs,omitempty"`
+	Condition string    `protobuf:"bytes,3,opt,name=condition" json:"condition,omitempty"`
+}
+
+func (m *DataTagKeysCmd) Reset()                    { *m = DataTagKeysCmd{} }
+func (m *DataTagKeysCmd) String() string            { return proto.CompactTextString(m) }
+func (*DataTagKeysCmd) ProtoMessage()               {}
+func (*DataTagKeysCmd) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{43} }
+
+func (m *DataTagKeysCmd) GetUser() *UserInfo {
+	if m != nil {
+		return m.User
+	}
+	return nil
+}
+
+func (m *DataTagKeysCmd) GetShardIDs() []uint64 {
+	if m != nil {
+		return m.ShardIDs
+	}
+	return nil
+}
+
+func (m *DataTagKeysCmd) GetCondition() string {
+	if m != nil {
+		return m.Condition
+	}
+	return ""
+}
+
+type DataTagValuesCmd struct {
+	User      *UserInfo `protobuf:"bytes,1,opt,name=user" json:"user,omitempty"`
+	ShardIDs  []uint64  `protobuf:"varint,2,rep,packed,name=shardIDs" json:"shardIDs,omitempty"`
+	Condition string    `protobuf:"bytes,3,opt,name=condition" json:"condition,omitempty"`
+}
+
+func (m *DataTagValuesCmd) Reset()                    { *m = DataTagValuesCmd{} }
+func (m *DataTagValuesCmd) String() string            { return proto.CompactTextString(m) }
+func (*DataTagValuesCmd) ProtoMessage()               {}
+func (*DataTagValuesCmd) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{44} }
+
+func (m *DataTagValuesCmd) GetUser() *UserInfo {
+	if m != nil {
+		return m.User
+	}
+	return nil
+}
+
+func (m *DataTagValuesCmd) GetShardIDs() []uint64 {
+	if m != nil {
+		return m.ShardIDs
+	}
+	return nil
+}
+
+func (m *DataTagValuesCmd) GetCondition() string {
+	if m != nil {
+		return m.Condition
+	}
+	return ""
 }
 
 func init() {
@@ -930,91 +1256,121 @@ func init() {
 	proto.RegisterType((*OptionalString)(nil), "internal.OptionalString")
 	proto.RegisterType((*RetentionPolicySpec)(nil), "internal.RetentionPolicySpec")
 	proto.RegisterType((*RetentionPolicyUpdate)(nil), "internal.RetentionPolicyUpdate")
-	proto.RegisterType((*AcquireLeaseCmd)(nil), "internal.AcquireLeaseCmd")
-	proto.RegisterType((*CreateContinuousQueryCmd)(nil), "internal.CreateContinuousQueryCmd")
-	proto.RegisterType((*DropContinuousQueryCmd)(nil), "internal.DropContinuousQueryCmd")
-	proto.RegisterType((*DatabaseCmd)(nil), "internal.DatabaseCmd")
-	proto.RegisterType((*CreateDatabaseCmd)(nil), "internal.CreateDatabaseCmd")
-	proto.RegisterType((*CreateDatabaseWithRetentionPolicyCmd)(nil), "internal.CreateDatabaseWithRetentionPolicyCmd")
-	proto.RegisterType((*DropDatabaseCmd)(nil), "internal.DropDatabaseCmd")
-	proto.RegisterType((*CreateRetentionPolicyCmd)(nil), "internal.CreateRetentionPolicyCmd")
-	proto.RegisterType((*RetentionPolicyCmd)(nil), "internal.RetentionPolicyCmd")
-	proto.RegisterType((*DropRetentionPolicyCmd)(nil), "internal.DropRetentionPolicyCmd")
-	proto.RegisterType((*UpdateRetentionPolicyCmd)(nil), "internal.UpdateRetentionPolicyCmd")
-	proto.RegisterType((*CreateSubscriptionCmd)(nil), "internal.CreateSubscriptionCmd")
-	proto.RegisterType((*DropSubscriptionCmd)(nil), "internal.DropSubscriptionCmd")
-	proto.RegisterType((*UserCmd)(nil), "internal.UserCmd")
-	proto.RegisterType((*CreateUserCmd)(nil), "internal.CreateUserCmd")
-	proto.RegisterType((*DropUserCmd)(nil), "internal.DropUserCmd")
-	proto.RegisterType((*UpdateUserCmd)(nil), "internal.UpdateUserCmd")
-	proto.RegisterType((*SetAdminPrivilegeCmd)(nil), "internal.SetAdminPrivilegeCmd")
-	proto.RegisterType((*SetPrivilegeCmd)(nil), "internal.SetPrivilegeCmd")
-	proto.RegisterType((*UserPrivilegesCmd)(nil), "internal.UserPrivilegesCmd")
-	proto.RegisterType((*UserPrivilegeCmd)(nil), "internal.UserPrivilegeCmd")
-	proto.RegisterType((*AuthenticateCmd)(nil), "internal.AuthenticateCmd")
-	proto.RegisterType((*ShardGroupsByTimeRangeCmd)(nil), "internal.ShardGroupsByTimeRangeCmd")
-	proto.RegisterType((*ShardsByTimeRangeCmd)(nil), "internal.ShardsByTimeRangeCmd")
-	proto.RegisterType((*DropShardCmd)(nil), "internal.DropShardCmd")
-	proto.RegisterType((*CreateShardGroupCmd)(nil), "internal.CreateShardGroupCmd")
-	proto.RegisterType((*DeleteShardGroupCmd)(nil), "internal.DeleteShardGroupCmd")
-	proto.RegisterType((*PrecreateShardGroupsCmd)(nil), "internal.PrecreateShardGroupsCmd")
-	proto.RegisterType((*ShardOwnerCmd)(nil), "internal.ShardOwnerCmd")
+	proto.RegisterType((*UserInfo)(nil), "internal.UserInfo")
+	proto.RegisterType((*MetaAcquireLeaseCmd)(nil), "internal.MetaAcquireLeaseCmd")
+	proto.RegisterType((*MetaCreateContinuousQueryCmd)(nil), "internal.MetaCreateContinuousQueryCmd")
+	proto.RegisterType((*MetaDropContinuousQueryCmd)(nil), "internal.MetaDropContinuousQueryCmd")
+	proto.RegisterType((*MetaDatabaseCmd)(nil), "internal.MetaDatabaseCmd")
+	proto.RegisterType((*MetaCreateDatabaseCmd)(nil), "internal.MetaCreateDatabaseCmd")
+	proto.RegisterType((*MetaCreateDatabaseWithRetentionPolicyCmd)(nil), "internal.MetaCreateDatabaseWithRetentionPolicyCmd")
+	proto.RegisterType((*MetaDropDatabaseCmd)(nil), "internal.MetaDropDatabaseCmd")
+	proto.RegisterType((*MetaCreateRetentionPolicyCmd)(nil), "internal.MetaCreateRetentionPolicyCmd")
+	proto.RegisterType((*MetaRetentionPolicyCmd)(nil), "internal.MetaRetentionPolicyCmd")
+	proto.RegisterType((*MetaDropRetentionPolicyCmd)(nil), "internal.MetaDropRetentionPolicyCmd")
+	proto.RegisterType((*MetaUpdateRetentionPolicyCmd)(nil), "internal.MetaUpdateRetentionPolicyCmd")
+	proto.RegisterType((*MetaCreateSubscriptionCmd)(nil), "internal.MetaCreateSubscriptionCmd")
+	proto.RegisterType((*MetaDropSubscriptionCmd)(nil), "internal.MetaDropSubscriptionCmd")
+	proto.RegisterType((*MetaUserCmd)(nil), "internal.MetaUserCmd")
+	proto.RegisterType((*MetaCreateUserCmd)(nil), "internal.MetaCreateUserCmd")
+	proto.RegisterType((*MetaDropUserCmd)(nil), "internal.MetaDropUserCmd")
+	proto.RegisterType((*MetaUpdateUserCmd)(nil), "internal.MetaUpdateUserCmd")
+	proto.RegisterType((*MetaSetAdminPrivilegeCmd)(nil), "internal.MetaSetAdminPrivilegeCmd")
+	proto.RegisterType((*MetaSetPrivilegeCmd)(nil), "internal.MetaSetPrivilegeCmd")
+	proto.RegisterType((*MetaUserPrivilegesCmd)(nil), "internal.MetaUserPrivilegesCmd")
+	proto.RegisterType((*MetaUserPrivilegeCmd)(nil), "internal.MetaUserPrivilegeCmd")
+	proto.RegisterType((*MetaAuthenticateCmd)(nil), "internal.MetaAuthenticateCmd")
+	proto.RegisterType((*MetaShardGroupsByTimeRangeCmd)(nil), "internal.MetaShardGroupsByTimeRangeCmd")
+	proto.RegisterType((*MetaDropShardCmd)(nil), "internal.MetaDropShardCmd")
+	proto.RegisterType((*MetaCreateShardGroupCmd)(nil), "internal.MetaCreateShardGroupCmd")
+	proto.RegisterType((*MetaDeleteShardGroupCmd)(nil), "internal.MetaDeleteShardGroupCmd")
+	proto.RegisterType((*MetaPrecreateShardGroupsCmd)(nil), "internal.MetaPrecreateShardGroupsCmd")
+	proto.RegisterType((*DataCreateShardCmd)(nil), "internal.DataCreateShardCmd")
+	proto.RegisterType((*DataWriteToShardCmd)(nil), "internal.DataWriteToShardCmd")
+	proto.RegisterType((*DataDeleteShardCmd)(nil), "internal.DataDeleteShardCmd")
+	proto.RegisterType((*DataShardGroupCmd)(nil), "internal.DataShardGroupCmd")
+	proto.RegisterType((*DataDeleteDatabaseCmd)(nil), "internal.DataDeleteDatabaseCmd")
+	proto.RegisterType((*DataDeleteRetentionPolicyCmd)(nil), "internal.DataDeleteRetentionPolicyCmd")
+	proto.RegisterType((*DataDeleteMeasurementCmd)(nil), "internal.DataDeleteMeasurementCmd")
+	proto.RegisterType((*DataMeasurementNamesCmd)(nil), "internal.DataMeasurementNamesCmd")
+	proto.RegisterType((*DataMeasurementsCardinalityCmd)(nil), "internal.DataMeasurementsCardinalityCmd")
+	proto.RegisterType((*DataDeleteSeriesCmd)(nil), "internal.DataDeleteSeriesCmd")
+	proto.RegisterType((*DataSeriesCardinalityCmd)(nil), "internal.DataSeriesCardinalityCmd")
+	proto.RegisterType((*DataTagKeysCmd)(nil), "internal.DataTagKeysCmd")
+	proto.RegisterType((*DataTagValuesCmd)(nil), "internal.DataTagValuesCmd")
 }
 
 func init() { proto.RegisterFile("cmd.proto", fileDescriptor0) }
 
 var fileDescriptor0 = []byte{
-	// 820 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xbc, 0x56, 0x5b, 0x4f, 0xdb, 0x48,
-	0x14, 0x96, 0xed, 0xc0, 0x26, 0x27, 0x84, 0x8b, 0xc3, 0x25, 0xbb, 0xe2, 0x12, 0x46, 0xbb, 0x5a,
-	0x1e, 0x56, 0x59, 0x2d, 0xac, 0x76, 0x9f, 0xaa, 0x8a, 0x12, 0x09, 0xa8, 0xaa, 0x42, 0x9d, 0x46,
-	0x55, 0x5f, 0xaa, 0x0e, 0xf6, 0x10, 0x46, 0xf5, 0x8d, 0x99, 0x31, 0x94, 0xdf, 0xd0, 0x87, 0xfe,
-	0x8a, 0xfe, 0x92, 0xfe, 0xa9, 0x3e, 0x56, 0x33, 0x1e, 0x3b, 0x4e, 0xc8, 0xa5, 0x5c, 0xd4, 0xb7,
-	0x99, 0xe3, 0x73, 0xbe, 0xf3, 0x7d, 0xe7, 0x62, 0x1b, 0x2a, 0x6e, 0xe0, 0xb5, 0x62, 0x16, 0x89,
-	0xc8, 0x2e, 0xd3, 0x50, 0x10, 0x16, 0x62, 0x1f, 0x6d, 0x43, 0xed, 0x24, 0x16, 0x34, 0x0a, 0xb1,
-	0x7f, 0x1c, 0x8a, 0xff, 0xfe, 0xb5, 0x17, 0xc1, 0xba, 0xc2, 0x7e, 0xc3, 0x68, 0x1a, 0x3b, 0x96,
-	0x23, 0x8f, 0x08, 0xc1, 0x7c, 0xe6, 0xd2, 0x11, 0x8c, 0x86, 0xbd, 0xa2, 0x4f, 0x25, 0xf5, 0xf9,
-	0x6a, 0x40, 0xdd, 0x21, 0x82, 0x84, 0xd2, 0xef, 0x34, 0xf2, 0xa9, 0x7b, 0xd3, 0x89, 0x89, 0x6b,
-	0xdb, 0x50, 0x0a, 0x71, 0x40, 0xb4, 0xab, 0x3a, 0xdb, 0x7b, 0x50, 0x66, 0x24, 0xf6, 0xa9, 0x8b,
-	0x5f, 0x36, 0xcc, 0xa6, 0xb1, 0x53, 0xdd, 0x5d, 0x6b, 0x65, 0x7c, 0x5a, 0x03, 0x64, 0x9c, 0xdc,
-	0x51, 0x06, 0x79, 0x09, 0xc3, 0xf2, 0x61, 0xc3, 0x9a, 0x12, 0x94, 0x39, 0xda, 0x2d, 0xb0, 0x3b,
-	0x17, 0x98, 0x79, 0x87, 0x2c, 0x4a, 0xe2, 0x76, 0x16, 0x5e, 0x52, 0xd2, 0x46, 0x3c, 0x41, 0xdf,
-	0x0c, 0x58, 0x19, 0x52, 0xd1, 0x8d, 0x3d, 0x2c, 0x88, 0xfd, 0x57, 0x41, 0x47, 0x75, 0xb7, 0x71,
-	0x3b, 0x75, 0x5a, 0x99, 0x9f, 0xae, 0xf0, 0x70, 0xac, 0xc2, 0x09, 0xe1, 0xa3, 0xa4, 0xff, 0x01,
-	0x0b, 0xfb, 0xee, 0x65, 0x42, 0x19, 0x79, 0x41, 0x30, 0x27, 0x07, 0x81, 0x37, 0xaa, 0x77, 0xe8,
-	0x3d, 0x34, 0x0e, 0x18, 0xc1, 0x82, 0x1c, 0x44, 0xa1, 0xa0, 0x61, 0x12, 0x25, 0xfc, 0x55, 0x42,
-	0xd8, 0x8d, 0xf4, 0xff, 0x0d, 0xca, 0x1e, 0x16, 0xf8, 0x0c, 0xf3, 0x2c, 0x26, 0xbf, 0xe7, 0x58,
-	0x66, 0x61, 0x0e, 0x96, 0x61, 0xe6, 0x52, 0xc6, 0x2a, 0xb5, 0x15, 0x27, 0xbd, 0xa0, 0x23, 0x58,
-	0x6d, 0xb3, 0x28, 0x7e, 0x38, 0x3e, 0xda, 0x86, 0x6a, 0x5b, 0x3f, 0x1f, 0x27, 0xe7, 0x4f, 0x58,
-	0x4a, 0xe5, 0x4c, 0x73, 0x0c, 0xe0, 0xf7, 0x41, 0xc7, 0x37, 0x54, 0x5c, 0x0c, 0x8d, 0xca, 0x98,
-	0x58, 0xfb, 0x1f, 0x28, 0xf1, 0x98, 0xb8, 0x7a, 0x12, 0x36, 0xfa, 0x5d, 0x19, 0xb1, 0x30, 0x8e,
-	0x72, 0x95, 0xdd, 0x90, 0x45, 0x98, 0xc6, 0xea, 0x93, 0x91, 0xb5, 0x63, 0x04, 0x95, 0x49, 0xe5,
-	0xba, 0x3b, 0x25, 0xbb, 0x09, 0xd5, 0x00, 0x7f, 0x20, 0x6d, 0x72, 0x8e, 0x13, 0x5f, 0xa8, 0x9e,
-	0x95, 0x9d, 0xa2, 0x09, 0xb5, 0xc1, 0xbe, 0x23, 0x8d, 0x51, 0x5d, 0xd3, 0xfd, 0x7f, 0x04, 0xa4,
-	0x2f, 0x06, 0x34, 0xd2, 0xf5, 0x7d, 0x38, 0x98, 0xfd, 0x3f, 0xcc, 0x26, 0x0a, 0x4b, 0xef, 0xe6,
-	0xd6, 0xd8, 0x9a, 0xe9, 0x94, 0xda, 0x7d, 0xb8, 0x6e, 0xa5, 0xdb, 0x75, 0xfb, 0x6c, 0xc0, 0x4a,
-	0xda, 0xc5, 0x4e, 0x72, 0xc6, 0x5d, 0x46, 0xd5, 0xb2, 0x4e, 0x23, 0x39, 0x0f, 0x26, 0x8b, 0x35,
-	0x45, 0x93, 0xc5, 0x39, 0x69, 0xab, 0x40, 0xda, 0x86, 0x52, 0x10, 0x79, 0x44, 0x25, 0xad, 0x38,
-	0xea, 0x6c, 0x23, 0x98, 0xf3, 0x08, 0x17, 0x34, 0x54, 0x7b, 0xcf, 0x1b, 0x33, 0x4d, 0x6b, 0xa7,
-	0xe2, 0x0c, 0xd8, 0x50, 0x17, 0xea, 0xb2, 0x07, 0x8f, 0x4c, 0x07, 0x6d, 0xc0, 0x2f, 0x5d, 0x4e,
-	0xd8, 0xb8, 0x69, 0xee, 0x42, 0x2d, 0x2d, 0xc3, 0x04, 0x27, 0xc9, 0x21, 0xc6, 0x9c, 0x5f, 0x47,
-	0xcc, 0xd3, 0xd9, 0xf2, 0xbb, 0x7c, 0xa1, 0x60, 0x2f, 0xa0, 0xa1, 0x1e, 0xce, 0xf4, 0xa2, 0x5e,
-	0x03, 0x2c, 0x8a, 0x27, 0x65, 0x7e, 0x0a, 0xb5, 0xb4, 0x6b, 0xf7, 0xcc, 0x8c, 0x8e, 0x60, 0xb9,
-	0x43, 0xc4, 0xbe, 0xcc, 0x77, 0xca, 0xe8, 0x15, 0xf5, 0x49, 0x8f, 0xe8, 0x8a, 0x25, 0x5c, 0x4e,
-	0x49, 0x8e, 0x95, 0xdf, 0xfb, 0x6c, 0xcd, 0x22, 0xdb, 0x1e, 0x2c, 0x74, 0x88, 0xf8, 0x61, 0x90,
-	0x62, 0x4b, 0xcc, 0xa1, 0x96, 0xac, 0x43, 0x25, 0xce, 0x70, 0x54, 0x49, 0x2c, 0xa7, 0x6f, 0x40,
-	0x7f, 0xc3, 0x92, 0x54, 0x9b, 0x67, 0xe2, 0x53, 0x52, 0xa1, 0xe7, 0xb0, 0x38, 0x10, 0xf0, 0x00,
-	0x6a, 0xe8, 0x18, 0x16, 0xf6, 0x13, 0x71, 0x21, 0xd7, 0xc6, 0x95, 0x1f, 0x93, 0xe9, 0x50, 0x63,
-	0x4b, 0x7f, 0x0d, 0xbf, 0xf6, 0x3f, 0x67, 0xfc, 0xd9, 0xcd, 0x6b, 0x1a, 0x10, 0x07, 0x87, 0x39,
-	0xbf, 0xb1, 0x13, 0xbb, 0x0a, 0xb3, 0xb1, 0x5a, 0x58, 0x0d, 0xa9, 0x6f, 0xb2, 0xf7, 0x22, 0x1b,
-	0x22, 0xcb, 0x51, 0xe7, 0xd4, 0x86, 0x3f, 0xea, 0x5f, 0x07, 0x75, 0x46, 0xef, 0x60, 0x59, 0x25,
-	0x1e, 0xce, 0xb9, 0x09, 0xc0, 0xa3, 0x84, 0xb9, 0xea, 0x53, 0xa1, 0xb2, 0xce, 0x39, 0x05, 0x4b,
-	0x8e, 0x6f, 0x8e, 0xc0, 0xb7, 0x0a, 0xf8, 0x9b, 0x30, 0xa7, 0x96, 0x50, 0xe6, 0x90, 0xb8, 0xf3,
-	0x60, 0x52, 0x4f, 0xe1, 0x95, 0x1c, 0x93, 0x7a, 0xa8, 0x07, 0x75, 0xfd, 0xd6, 0xc8, 0xe5, 0xdf,
-	0x57, 0xf2, 0x3a, 0x54, 0x04, 0x0d, 0x08, 0x17, 0x38, 0x88, 0xb3, 0x49, 0xc9, 0x0d, 0xe8, 0x2d,
-	0xd4, 0xdb, 0xc4, 0x27, 0x8f, 0x91, 0x28, 0xd5, 0x60, 0xe5, 0x1a, 0x9e, 0xc0, 0xda, 0x29, 0x23,
-	0xee, 0x90, 0x0c, 0xae, 0x57, 0xf0, 0x9c, 0x45, 0x81, 0xfe, 0x11, 0x55, 0x67, 0x19, 0x2e, 0x22,
-	0x5d, 0x38, 0x53, 0x44, 0x68, 0x0b, 0x6a, 0x2a, 0xea, 0xe4, 0x3a, 0x4c, 0xf7, 0x76, 0xa8, 0x46,
-	0x67, 0xb3, 0xea, 0x77, 0x77, 0xef, 0x7b, 0x00, 0x00, 0x00, 0xff, 0xff, 0x1f, 0x28, 0x31, 0x40,
-	0xfb, 0x0a, 0x00, 0x00,
+	// 1119 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xbc, 0x57, 0xdd, 0x52, 0x1c, 0xc5,
+	0x17, 0xaf, 0x99, 0x59, 0xf8, 0xb3, 0x87, 0xfc, 0x09, 0x99, 0x90, 0x30, 0x22, 0x89, 0x9b, 0x2e,
+	0x63, 0xad, 0xa5, 0x45, 0x95, 0x60, 0x45, 0xcb, 0xd2, 0x0b, 0x02, 0x56, 0x44, 0x01, 0x71, 0x96,
+	0x98, 0xca, 0x85, 0x17, 0xcd, 0xcc, 0x01, 0xba, 0x98, 0x2f, 0xba, 0x7b, 0xd0, 0xad, 0xf8, 0x0e,
+	0x5e, 0xf8, 0x14, 0x3e, 0x87, 0x97, 0xbe, 0x90, 0x97, 0x56, 0xf7, 0xf4, 0x7c, 0xb0, 0xec, 0x32,
+	0xe1, 0xa3, 0x72, 0xd7, 0xa7, 0xe7, 0x9c, 0xf3, 0xfb, 0x9d, 0x8f, 0x3e, 0xdd, 0x03, 0xdd, 0x20,
+	0x0e, 0x57, 0x32, 0x9e, 0xca, 0xd4, 0x9d, 0x61, 0x89, 0x44, 0x9e, 0xd0, 0x88, 0x3c, 0x81, 0xff,
+	0xff, 0x98, 0x49, 0x96, 0x26, 0x34, 0xda, 0x4a, 0xe4, 0xb3, 0xcf, 0xdd, 0x79, 0x70, 0xce, 0x68,
+	0xe4, 0x59, 0x3d, 0xab, 0xef, 0xf8, 0x6a, 0x49, 0x08, 0xcc, 0x95, 0x2a, 0x03, 0xc9, 0x59, 0x72,
+	0xd4, 0xd4, 0xe9, 0x16, 0x3a, 0x7f, 0x5b, 0x70, 0xdf, 0x47, 0x89, 0x89, 0xd2, 0xdb, 0x4b, 0x23,
+	0x16, 0x0c, 0x07, 0x19, 0x06, 0xae, 0x0b, 0x9d, 0x84, 0xc6, 0x68, 0x54, 0xf5, 0xda, 0x5d, 0x83,
+	0x19, 0x8e, 0x59, 0xc4, 0x02, 0xba, 0xeb, 0xd9, 0x3d, 0xab, 0x3f, 0xbb, 0xba, 0xb8, 0x52, 0xf2,
+	0x59, 0x39, 0x47, 0xc6, 0xaf, 0x14, 0x95, 0x51, 0x98, 0x73, 0xaa, 0x3e, 0x7a, 0x4e, 0x8b, 0x51,
+	0xa9, 0xe8, 0xae, 0x80, 0x3b, 0x38, 0xa6, 0x3c, 0x7c, 0xc1, 0xd3, 0x3c, 0xdb, 0x2c, 0xcd, 0x3b,
+	0x3a, 0xb4, 0x31, 0x5f, 0xc8, 0xbf, 0x16, 0x3c, 0x18, 0x89, 0xe2, 0x65, 0x16, 0x52, 0x89, 0xee,
+	0xa7, 0x8d, 0x38, 0x66, 0x57, 0xbd, 0x8b, 0xd0, 0x45, 0x66, 0xde, 0x79, 0x84, 0x2f, 0x26, 0x46,
+	0x78, 0x89, 0xf9, 0xb8, 0xd0, 0xff, 0xb1, 0x60, 0xe6, 0xa5, 0x40, 0xbe, 0x95, 0x1c, 0xa6, 0x63,
+	0xab, 0xe6, 0x42, 0xe7, 0x98, 0x8a, 0x63, 0x1d, 0x4f, 0xd7, 0xd7, 0x6b, 0x77, 0x01, 0xa6, 0x68,
+	0x18, 0xb3, 0x82, 0xef, 0x8c, 0x5f, 0x08, 0xee, 0x73, 0x80, 0x8c, 0xb3, 0x33, 0x16, 0xe1, 0x11,
+	0x0a, 0xaf, 0xd3, 0x73, 0xfa, 0xb3, 0xab, 0xa4, 0xe6, 0x52, 0xa2, 0xac, 0xec, 0x55, 0x4a, 0xdf,
+	0x26, 0x92, 0x0f, 0xfd, 0x86, 0xd5, 0xd2, 0x37, 0x70, 0x77, 0xe4, 0xb3, 0x6a, 0xba, 0x13, 0x1c,
+	0x96, 0x4d, 0x77, 0x82, 0x43, 0x05, 0x7f, 0x46, 0xa3, 0x1c, 0x35, 0x27, 0xc7, 0x2f, 0x84, 0xaf,
+	0xec, 0x2f, 0x2d, 0xf2, 0x31, 0xdc, 0xdf, 0x41, 0x49, 0xd7, 0x83, 0xd3, 0x9c, 0x71, 0xdc, 0x46,
+	0x2a, 0x70, 0x23, 0x0e, 0xc7, 0xc5, 0x45, 0x42, 0x58, 0x56, 0xaa, 0x1b, 0x1c, 0xa9, 0xc4, 0x8d,
+	0x34, 0x91, 0x2c, 0xc9, 0xd3, 0x5c, 0xfc, 0x94, 0x23, 0x1f, 0x2a, 0x9b, 0x25, 0x98, 0x09, 0xa9,
+	0xa4, 0x07, 0x54, 0x94, 0x76, 0x95, 0x5c, 0xf9, 0xb3, 0x1b, 0x79, 0x5a, 0x80, 0xa9, 0x53, 0x65,
+	0xab, 0x73, 0xd2, 0xf5, 0x0b, 0x81, 0x6c, 0xc3, 0x92, 0x42, 0xd9, 0xe4, 0x69, 0x76, 0x73, 0x0c,
+	0xf2, 0x14, 0xee, 0x6a, 0x6f, 0x46, 0x67, 0x52, 0x68, 0x9f, 0xc0, 0x83, 0x3a, 0xb4, 0x36, 0xe5,
+	0x53, 0xe8, 0x5f, 0x54, 0x7e, 0xc5, 0xe4, 0xf1, 0xc8, 0x81, 0x98, 0x60, 0xef, 0x7e, 0x06, 0x1d,
+	0x91, 0x61, 0x60, 0xfa, 0xfd, 0x51, 0x5d, 0xef, 0x31, 0x63, 0xc1, 0xd7, 0xaa, 0x65, 0x95, 0x54,
+	0x52, 0xda, 0xd8, 0xfd, 0x61, 0x35, 0xcb, 0x34, 0x86, 0xd2, 0x65, 0x29, 0xbc, 0x3a, 0x35, 0xb7,
+	0x07, 0xb3, 0x31, 0x3d, 0xc1, 0x4d, 0x3c, 0xa4, 0x79, 0x24, 0x4d, 0x7f, 0x37, 0xb7, 0xc8, 0x77,
+	0xf0, 0x50, 0x11, 0xba, 0x22, 0x95, 0x71, 0xd5, 0x6c, 0xf4, 0xc6, 0x2d, 0x78, 0xfb, 0xcb, 0x64,
+	0xaa, 0x18, 0x5c, 0x37, 0x77, 0xe8, 0x7e, 0x01, 0xd3, 0xb9, 0xf6, 0x65, 0xa6, 0xd2, 0x07, 0x13,
+	0xf3, 0x67, 0x20, 0x8d, 0xfa, 0x68, 0x0e, 0x3b, 0x17, 0x73, 0xf8, 0xa7, 0x05, 0xef, 0xd5, 0x55,
+	0x1d, 0xe4, 0x07, 0x22, 0xe0, 0x4c, 0x8f, 0xaa, 0x36, 0xa2, 0x73, 0x60, 0xf3, 0xcc, 0xd0, 0xb4,
+	0x79, 0x56, 0x11, 0x77, 0xce, 0x4f, 0xac, 0x38, 0x0d, 0x51, 0x03, 0x77, 0x7d, 0xbd, 0x76, 0x09,
+	0xdc, 0x09, 0x51, 0x48, 0x96, 0xe8, 0xa9, 0x27, 0xbc, 0xa9, 0x9e, 0xd3, 0xef, 0xfa, 0xe7, 0xf6,
+	0xc8, 0x6b, 0x58, 0x2c, 0xeb, 0x71, 0xcb, 0x94, 0xc8, 0x13, 0x98, 0xd5, 0xb5, 0x11, 0xc8, 0x27,
+	0x75, 0xfa, 0x6b, 0xb8, 0x57, 0xa7, 0xe4, 0x12, 0x45, 0xc5, 0x25, 0xa3, 0x42, 0xfc, 0x9a, 0xf2,
+	0xd0, 0xa0, 0x56, 0xf2, 0xf8, 0xc1, 0x5c, 0x8d, 0x0d, 0x9e, 0x66, 0x97, 0x31, 0xd8, 0x28, 0x18,
+	0x14, 0xd5, 0xbc, 0x26, 0x03, 0xb2, 0x0d, 0x9e, 0x72, 0x32, 0x40, 0xb9, 0xae, 0xb0, 0xab, 0x61,
+	0x6e, 0xb2, 0x98, 0x0b, 0xd5, 0x41, 0x95, 0xbf, 0x4a, 0xae, 0x99, 0xdb, 0x4d, 0xe6, 0x27, 0xc5,
+	0xa4, 0x18, 0xa0, 0x7c, 0x6b, 0x47, 0xcd, 0x52, 0xd9, 0x23, 0xa5, 0x5a, 0x86, 0x6e, 0x75, 0xd7,
+	0xe8, 0x14, 0x39, 0x7e, 0xbd, 0x41, 0xd6, 0x8a, 0xb1, 0xa9, 0x22, 0xaf, 0xef, 0xa0, 0x16, 0x38,
+	0xb2, 0x0b, 0x0b, 0x17, 0x8c, 0x6e, 0x40, 0x91, 0xec, 0x98, 0x1b, 0x2c, 0x97, 0xc7, 0xea, 0x88,
+	0x05, 0xea, 0x72, 0x6a, 0x77, 0x37, 0xb1, 0x1c, 0x6f, 0xe0, 0x91, 0x4e, 0x60, 0x75, 0xf1, 0x8b,
+	0xe7, 0xc3, 0x7d, 0x16, 0xa3, 0x4f, 0x93, 0x8a, 0xe7, 0xc4, 0xce, 0x7e, 0x08, 0xd3, 0x99, 0x3e,
+	0xe0, 0xc6, 0xad, 0x91, 0x54, 0x4f, 0xc8, 0xb2, 0xc9, 0x1c, 0x5f, 0xaf, 0x8b, 0x3d, 0xfa, 0x9b,
+	0x79, 0x64, 0xe9, 0x35, 0x21, 0x30, 0x5f, 0x1d, 0x28, 0x45, 0x40, 0xe1, 0xcd, 0x81, 0xcd, 0x42,
+	0x8d, 0xd4, 0xf1, 0x6d, 0x16, 0x92, 0x93, 0xe2, 0xd0, 0x99, 0x49, 0x50, 0xd1, 0xbc, 0x2e, 0xb5,
+	0x65, 0xe8, 0x4a, 0x16, 0xa3, 0x90, 0x34, 0xce, 0xca, 0x0a, 0x57, 0x1b, 0xe4, 0x17, 0x73, 0xc2,
+	0x31, 0xc2, 0xdb, 0x00, 0x2b, 0x62, 0x71, 0xaa, 0x58, 0xd6, 0xe1, 0x7d, 0xe5, 0x7e, 0x8f, 0x63,
+	0x30, 0x12, 0x8e, 0x30, 0x47, 0xe9, 0x90, 0xa7, 0xb1, 0x79, 0x62, 0xeb, 0xb5, 0x72, 0x21, 0x53,
+	0xf3, 0x8e, 0xb1, 0x65, 0x4a, 0x7e, 0x07, 0x57, 0x5d, 0x89, 0x8d, 0x74, 0x5c, 0x97, 0x9c, 0x07,
+	0xff, 0x13, 0xca, 0x7e, 0x6b, 0xd3, 0x30, 0x2c, 0x45, 0xf5, 0x05, 0x13, 0x7a, 0x10, 0x61, 0x68,
+	0x66, 0x73, 0x29, 0xaa, 0xe6, 0x53, 0xe8, 0xaf, 0x38, 0x93, 0xb8, 0x9f, 0x56, 0xf0, 0x0d, 0x57,
+	0xd6, 0x79, 0x57, 0xea, 0x40, 0xa5, 0x2c, 0x91, 0xca, 0x4a, 0xe3, 0xdf, 0xf1, 0xeb, 0x0d, 0xf2,
+	0x61, 0x11, 0x4c, 0x23, 0xdd, 0xe3, 0x3a, 0xe0, 0x29, 0xdc, 0x53, 0x5a, 0xe7, 0xcb, 0x31, 0x0f,
+	0x0e, 0x0b, 0x85, 0x67, 0xf5, 0x9c, 0x7e, 0xc7, 0x57, 0x4b, 0xf5, 0xa8, 0xa9, 0x9d, 0xb5, 0x3d,
+	0x1b, 0x76, 0x61, 0xb9, 0x56, 0xbe, 0x85, 0xcb, 0xf5, 0x7b, 0xf0, 0x6a, 0x7f, 0x3b, 0x48, 0x45,
+	0xce, 0x31, 0xc6, 0x44, 0x5e, 0xc7, 0xd7, 0x1b, 0x58, 0x54, 0xbe, 0x1a, 0x5e, 0x76, 0x69, 0x5c,
+	0x0c, 0x9a, 0x8f, 0xa0, 0xa3, 0x4e, 0xb5, 0xf9, 0xdb, 0x70, 0x2f, 0xbe, 0x9d, 0x7d, 0xfd, 0xbd,
+	0x6d, 0xc6, 0x05, 0x69, 0x12, 0xb2, 0xea, 0x7f, 0xa2, 0xeb, 0xd7, 0x1b, 0xe4, 0x6b, 0x78, 0x3c,
+	0x02, 0x2e, 0x36, 0x28, 0x0f, 0x59, 0x42, 0x23, 0x26, 0xdb, 0x52, 0x43, 0xd2, 0xa2, 0x3f, 0x4c,
+	0x41, 0x91, 0xb3, 0x6a, 0x3e, 0x4e, 0xcc, 0xc0, 0x63, 0x00, 0x91, 0xe6, 0x3c, 0xc0, 0x46, 0x8b,
+	0x34, 0x76, 0x5a, 0xe8, 0x3e, 0x2b, 0xf2, 0x6e, 0xa0, 0xde, 0x9e, 0x28, 0x87, 0x39, 0x65, 0xb7,
+	0x4f, 0x8f, 0x7e, 0xc0, 0xe1, 0x55, 0x53, 0x6b, 0x9a, 0x5b, 0x78, 0xb6, 0xee, 0xbe, 0x4a, 0x6e,
+	0xe1, 0x2a, 0x61, 0xde, 0x60, 0xfe, 0xac, 0xfe, 0x47, 0xde, 0x0d, 0xea, 0xc1, 0xb4, 0xfe, 0xb1,
+	0x5f, 0xfb, 0x2f, 0x00, 0x00, 0xff, 0xff, 0x19, 0x4f, 0xc5, 0xf1, 0xe5, 0x0f, 0x00, 0x00,
 }

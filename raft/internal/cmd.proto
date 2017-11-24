@@ -23,59 +23,66 @@ message RetentionPolicyUpdate {
 	OptionalInt64 ShardGroupDuration = 4;
 }
 
+message UserInfo {
+	string name = 1;
+	string hash = 2;
+	bool admin = 3;
+	map<string, int64> privileges = 4;
+}
+
 // acquire lease
-message AcquireLeaseCmd {
+message MetaAcquireLeaseCmd {
 	string name = 1;
 }
 
 // continuous query cmd
-message CreateContinuousQueryCmd {
+message MetaCreateContinuousQueryCmd {
 	string database = 1;
 	string name = 2;
 	string query = 3;
 }
 
-message DropContinuousQueryCmd {
+message MetaDropContinuousQueryCmd {
 	string database = 1;
 	string name = 2;
 }
 
 // database cmd
-message DatabaseCmd {
+message MetaDatabaseCmd {
 	string name = 1;
 }
 
-message CreateDatabaseCmd {
+message MetaCreateDatabaseCmd {
 	string name = 1;
 }
 
-message CreateDatabaseWithRetentionPolicyCmd {
+message MetaCreateDatabaseWithRetentionPolicyCmd {
 	string name = 1;
 	RetentionPolicySpec spec = 2;
 }
 
-message DropDatabaseCmd {
+message MetaDropDatabaseCmd {
 	string name = 1;
 }
 
 // retention policy
-message CreateRetentionPolicyCmd {
+message MetaCreateRetentionPolicyCmd {
 	string database = 1;
 	RetentionPolicySpec spec = 2;
 	bool makeDefault = 3;
 }
 
-message RetentionPolicyCmd {
+message MetaRetentionPolicyCmd {
 	string database = 1;
 	string name = 2;
 }
 
-message DropRetentionPolicyCmd {
+message MetaDropRetentionPolicyCmd {
 	string database = 1;
 	string name = 2;
 }
 
-message UpdateRetentionPolicyCmd {
+message MetaUpdateRetentionPolicyCmd {
 	string database = 1;
 	string name = 2;
 	RetentionPolicyUpdate update = 3;
@@ -83,7 +90,7 @@ message UpdateRetentionPolicyCmd {
 }
 
 // subsription
-message CreateSubscriptionCmd {
+message MetaCreateSubscriptionCmd {
 	string database = 1;
 	string rp = 2;
 	string name = 3;
@@ -91,93 +98,149 @@ message CreateSubscriptionCmd {
 	repeated string destinations = 5;
 }
 
-message DropSubscriptionCmd {
+message MetaDropSubscriptionCmd {
 	string database = 1;
 	string rp = 2;
 	string name = 3;
 }
 
 // user cmd
-message UserCmd {
+message MetaUserCmd {
 	string name = 1;
 }
 
-message CreateUserCmd {
+message MetaCreateUserCmd {
 	string name = 1;
 	string password = 2;
 	bool admin = 3;
 }
 
-message DropUserCmd {
+message MetaDropUserCmd {
 	string name = 1;
 }
 
-message UpdateUserCmd {
+message MetaUpdateUserCmd {
 	string name = 1;
 	string password = 2;
 }
 
 // user privilege
-message SetAdminPrivilegeCmd {
+message MetaSetAdminPrivilegeCmd {
 	string username =1;
 	bool admin = 2;
 }
 
-message SetPrivilegeCmd {
+message MetaSetPrivilegeCmd {
 	string username = 1;
 	string database = 2;
 	int64 privilege = 3;
 }
 
-message UserPrivilegesCmd {
+message MetaUserPrivilegesCmd {
 	string username = 1;
 }
 
-message UserPrivilegeCmd {
+message MetaUserPrivilegeCmd {
 	string username = 1;
 	string database = 2;
 }
 
-message AuthenticateCmd {
+message MetaAuthenticateCmd {
 	string username = 1;
 	string password = 2;
 }
 
 // shard
-message ShardGroupsByTimeRangeCmd {
+message MetaShardGroupsByTimeRangeCmd {
 	string database = 1;
 	string policy = 2;
 	int64 tmin = 3;
 	int64 tmax = 4;
 }
 
-message ShardsByTimeRangeCmd {
-	bytes sourceData = 1;
-	int64 tmin = 2;
-	int64 tmax = 3;
-}
-
-message DropShardCmd {
+message MetaDropShardCmd {
 	uint64 id = 1;
 }
 
-message CreateShardGroupCmd {
+message MetaCreateShardGroupCmd {
 	string database = 1;
 	string policy = 2;
 	int64 timestamp = 3;
 }
 
-message DeleteShardGroupCmd {
+message MetaDeleteShardGroupCmd {
 	string database = 1;
 	string policy = 2;
 	uint64 id = 3;
 }
 
-message PrecreateShardGroupsCmd {
+message MetaPrecreateShardGroupsCmd {
 	int64 from = 1;
 	int64 to = 2;
 }
 
-message ShardOwnerCmd {
+message DataCreateShardCmd {
+	string database = 1;
+	string policy = 2;
+	uint64 shardID = 3;
+	bool enabled = 4;
+}
+
+message DataWriteToShardCmd {
+	uint64 shardID = 1;
+	bytes pointData = 2;
+}
+
+message DataDeleteShardCmd {
 	uint64 id = 1;
+}
+
+message DataShardGroupCmd {
+	repeated uint64 ids = 1;
+}
+
+message DataDeleteDatabaseCmd {
+	string name = 1;
+}
+
+message DataDeleteRetentionPolicyCmd {
+	string database = 1;
+	string name = 2;
+}
+
+message DataDeleteMeasurementCmd {
+	string database = 1;
+	string name = 2;
+}
+
+message DataMeasurementNamesCmd {
+	UserInfo user = 1;
+	string database = 2;
+	string condition = 3;
+}
+
+message DataMeasurementsCardinalityCmd {
+	string database = 1;
+}
+
+message DataDeleteSeriesCmd {
+	string database = 1;
+	bytes sourceData = 2;
+	string condition = 3;
+}
+
+message DataSeriesCardinalityCmd {
+	string database = 1;
+}
+
+message DataTagKeysCmd {
+	UserInfo user = 1;
+	repeated uint64 shardIDs = 2;
+	string condition = 3;
+}
+
+message DataTagValuesCmd {
+	UserInfo user = 1;
+	repeated uint64 shardIDs = 2;
+	string condition = 3;
 }

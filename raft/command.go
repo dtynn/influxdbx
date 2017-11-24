@@ -4,9 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/dtynn/influxdbx/raft/internal"
 	"github.com/gogo/protobuf/proto"
-	"github.com/influxdata/influxdb/services/meta"
 	"github.com/influxdata/influxdb/uuid"
 )
 
@@ -26,8 +24,8 @@ const (
 	fsmCmdTypeMetaDropRetentionPolicy               = 5
 	fsmCmdTypeMetaUpdateRetentionPolicy             = 6
 	fsmCmdTypeMetaCreateUser                        = 7
-	fsmCmdTypeMetaUpdateUser                        = 8
-	fsmCmdTypeMetaDropUser                          = 9
+	fsmCmdTypeMetaDropUser                          = 8
+	fsmCmdTypeMetaUpdateUser                        = 9
 	fsmCmdTypeMetaSetPrivilege                      = 10
 	fsmCmdTypeMetaSetAdminPrivilege                 = 11
 	fsmCmdTypeMetaDropShard                         = 12
@@ -41,25 +39,57 @@ const (
 	fsmCmdTypeMetaDropSubscription                  = 20
 
 	fsmCmdTypeMetaAcquireLease           = 101
-	fsmCmdTypeMetaClusterID              = 102
-	fsmCmdTypeMetaDatabase               = 103
-	fsmCmdTypeMetaDatabases              = 104
-	fsmCmdTypeMetaRetentionPolicy        = 105
-	fsmCmdTypeMetaUsers                  = 106
-	fsmCmdTypeMetaUser                   = 107
-	fsmCmdTypeMetaUserPrivileges         = 108
-	fsmCmdTypeMetaUserPrivilege          = 109
-	fsmCmdTypeMetaAdminUserExists        = 110
-	fsmCmdTypeMetaAuthenticate           = 111
-	fsmCmdTypeMetaUserCount              = 112
-	fsmCmdTypeMetaShardIDs               = 113
-	fsmCmdTypeMetaShardGroupsByTimeRange = 114
-	fsmCmdTypeMetaShardsByTimeRange      = 115
-	fsmCmdTypeMetaShardOwner             = 116
+	fsmCmdTypeMetaDatabase               = 102
+	fsmCmdTypeMetaDatabases              = 103
+	fsmCmdTypeMetaRetentionPolicy        = 104
+	fsmCmdTypeMetaUsers                  = 105
+	fsmCmdTypeMetaUser                   = 106
+	fsmCmdTypeMetaUserPrivileges         = 107
+	fsmCmdTypeMetaUserPrivilege          = 108
+	fsmCmdTypeMetaAdminUserExists        = 109
+	fsmCmdTypeMetaAuthenticate           = 110
+	fsmCmdTypeMetaShardGroupsByTimeRange = 111
+
+	fsmCmdTypeDataCreateShard           = 51
+	fsmCmdTypeDataWriteToShard          = 52
+	fsmCmdTypeDataDeleteShard           = 53
+	fsmCmdTypeDataDeleteDatabase        = 54
+	fsmCmdTypeDataDeleteRetentionPolicy = 55
+	fsmCmdTypeDataDeleteMeasurement     = 56
+	fsmCmdTypeDataDeleteSeries          = 57
+
+	fsmCmdTypeDataShardGroup              = 151
+	fsmCmdTypeDataShardIDs                = 152
+	fsmCmdTypeDataMeasurementNames        = 153
+	fsmCmdTypeDataMeasurementsCardinality = 154
+	fsmCmdTypeDataSeriesCardinality       = 155
+	fsmCmdTypeDataTagKeys                 = 156
+	fsmCmdTypeDataTagValues               = 157
 )
 
 func (f fsmCmdType) isLocalQuery() bool {
 	return f/100 > 0
+}
+
+func applyCmd(r *Raft, cmdType fsmCmdType, cmd proto.Message) (interface{}, error) {
+	b, id, err := fsmCmdMarshal(cmdType, cmd)
+	if err != nil {
+		return nil, err
+	}
+
+	if id != nil {
+		r.queryMgr.Add(*id)
+	}
+
+	// TODO configurable
+	f := r.r.Apply(b, 10*time.Second)
+
+	if err := f.Error(); err != nil {
+		return nil, err
+	}
+
+	resp := (f.Response()).(fsmCmdResponse)
+	return resp.res, resp.err
 }
 
 type fsmCmdResponse struct {
@@ -131,91 +161,6 @@ func protoCmdUnmarshal(buf []byte, cmd proto.Message) {
 	if err := proto.Unmarshal(buf, cmd); err != nil {
 		panic(fmt.Errorf("malformed data for %T: %s", cmd, err))
 	}
-}
-
-func retentionPolicySpecProto2Meta(pSpec *internal.RetentionPolicySpec) *meta.RetentionPolicySpec {
-	var spec *meta.RetentionPolicySpec
-	if pSpec != nil {
-		spec = &meta.RetentionPolicySpec{
-			Name:               pSpec.GetName(),
-			ReplicaN:           pSpec.GetReplicaN().IntPtr(),
-			Duration:           pSpec.GetDuration().DurationPtr(),
-			ShardGroupDuration: time.Duration(pSpec.GetShardGroupDuration()),
-		}
-	}
-
-	return spec
-}
-
-func retentionPolicyUpdateProto2Meta(pUpdate *internal.RetentionPolicyUpdate) *meta.RetentionPolicyUpdate {
-	var update *meta.RetentionPolicyUpdate
-	if pUpdate != nil {
-		update = &meta.RetentionPolicyUpdate{
-			Name:               pUpdate.GetName().StringPtr(),
-			ReplicaN:           pUpdate.GetReplicaN().IntPtr(),
-			Duration:           pUpdate.GetDuration().DurationPtr(),
-			ShardGroupDuration: pUpdate.GetShardGroupDuration().DurationPtr(),
-		}
-	}
-
-	return update
-}
-
-func retentionPolicySpecMeta2Proto(spec *meta.RetentionPolicySpec) *internal.RetentionPolicySpec {
-	var pSpec *internal.RetentionPolicySpec
-	if spec != nil {
-		pSpec = &internal.RetentionPolicySpec{
-			Name:               spec.Name,
-			ShardGroupDuration: int64(spec.ShardGroupDuration),
-		}
-
-		if spec.ReplicaN != nil {
-			pSpec.ReplicaN = &internal.OptionalInt64{
-				Val: int64(*spec.ReplicaN),
-			}
-		}
-
-		if spec.Duration != nil {
-			pSpec.Duration = &internal.OptionalInt64{
-				Val: int64(*spec.Duration),
-			}
-		}
-	}
-
-	return pSpec
-}
-
-func retentionPolicyUpdateMeta2Proto(update *meta.RetentionPolicyUpdate) *internal.RetentionPolicyUpdate {
-	var pUpdate *internal.RetentionPolicyUpdate
-	if update != nil {
-		pUpdate = &internal.RetentionPolicyUpdate{}
-
-		if update.Name != nil {
-			pUpdate.Name = &internal.OptionalString{
-				Val: *update.Name,
-			}
-		}
-
-		if update.ReplicaN != nil {
-			pUpdate.ReplicaN = &internal.OptionalInt64{
-				Val: int64(*update.ReplicaN),
-			}
-		}
-
-		if update.Duration != nil {
-			pUpdate.Duration = &internal.OptionalInt64{
-				Val: int64(*update.Duration),
-			}
-		}
-
-		if update.ShardGroupDuration != nil {
-			pUpdate.ShardGroupDuration = &internal.OptionalInt64{
-				Val: int64(*update.ShardGroupDuration),
-			}
-		}
-	}
-
-	return pUpdate
 }
 
 func nano2time(nano int64) time.Time {

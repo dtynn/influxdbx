@@ -1,138 +1,225 @@
 package raft
 
 import (
-	"io"
-	"time"
+	"github.com/dtynn/influxdbx/coordinator"
+	"github.com/dtynn/influxdbx/raft/internal"
+	"github.com/influxdata/influxdb/models"
+	"github.com/influxdata/influxdb/query"
+	"github.com/influxdata/influxdb/services/meta"
+	"github.com/influxdata/influxdb/tsdb"
+	"github.com/influxdata/influxql"
+)
+
+var (
+	_ coordinator.TSDBStore = (*wrappedTSDBStore)(nil)
 )
 
 type wrappedTSDBStore struct {
 	r *Raft
 }
 
-func (w *wrappedTSDBStore) BackupShard(id uint64, since time.Time, w io.Writer) error {
+func (wts *wrappedTSDBStore) CreateShard(database, policy string, shardID uint64, enabled bool) error {
+	cmd := &internal.DataCreateShardCmd{
+		Database: database,
+		Policy:   policy,
+		ShardID:  shardID,
+		Enabled:  enabled,
+	}
 
+	_, err := applyCmd(wts.r, fsmCmdTypeDataCreateShard, cmd)
+	return err
 }
 
-func (w *wrappedTSDBStore) Close() error {
+func (wts *wrappedTSDBStore) WriteToShard(shardID uint64, points []models.Point) error {
+	pointData, err := pointsData2Proto(points)
+	if err != nil {
+		return err
+	}
 
+	cmd := &internal.DataWriteToShardCmd{
+		ShardID:   shardID,
+		PointData: pointData,
+	}
+
+	_, err = applyCmd(wts.r, fsmCmdTypeDataWriteToShard, cmd)
+
+	return err
 }
 
-func (w *wrappedTSDBStore) CreateShard(database, policy string, shardID uint64, enabled bool) error {
+func (wts *wrappedTSDBStore) DeleteShard(id uint64) error {
+	cmd := &internal.DataDeleteShardCmd{
+		Id: id,
+	}
 
+	_, err := applyCmd(wts.r, fsmCmdTypeDataDeleteShard, cmd)
+
+	return err
 }
 
-func (w *wrappedTSDBStore) CreateShardSnapshot(id uint64) (string, error) {
+func (wts *wrappedTSDBStore) ShardGroup(ids []uint64) (tsdb.ShardGroup, error) {
+	cmd := &internal.DataShardGroupCmd{
+		Ids: ids,
+	}
 
+	res, err := applyCmd(wts.r, fsmCmdTypeDataShardGroup, cmd)
+	if err != nil {
+		return nil, err
+	}
+
+	return res.(tsdb.ShardGroup), nil
 }
 
-func (w *wrappedTSDBStore) Databases() []string {
+func (wts *wrappedTSDBStore) ShardIDs() ([]uint64, error) {
+	res, err := applyCmd(wts.r, fsmCmdTypeDataShardIDs, nil)
+	if err != nil {
+		return nil, err
+	}
 
+	return res.([]uint64), nil
 }
 
-func (w *wrappedTSDBStore) DeleteDatabase(name string) error {
+func (wts *wrappedTSDBStore) DeleteDatabase(name string) error {
+	cmd := &internal.DataDeleteDatabaseCmd{
+		Name: name,
+	}
 
+	_, err := applyCmd(wts.r, fsmCmdTypeDataDeleteDatabase, cmd)
+
+	return err
 }
 
-func (w *wrappedTSDBStore) DeleteMeasurement(database, name string) error {
+func (wts *wrappedTSDBStore) DeleteRetentionPolicy(database, name string) error {
+	cmd := &internal.DataDeleteRetentionPolicyCmd{
+		Database: database,
+		Name:     name,
+	}
 
+	_, err := applyCmd(wts.r, fsmCmdTypeDataDeleteRetentionPolicy, cmd)
+
+	return err
 }
 
-func (w *wrappedTSDBStore) DeleteRetentionPolicy(database, name string) error {
+func (wts *wrappedTSDBStore) DeleteMeasurement(database, name string) error {
+	cmd := &internal.DataDeleteMeasurementCmd{
+		Database: database,
+		Name:     name,
+	}
 
+	_, err := applyCmd(wts.r, fsmCmdTypeDataDeleteMeasurement, cmd)
+
+	return err
 }
 
-func (w *wrappedTSDBStore) DeleteSeries(database string, sources []influxql.Source, condition influxql.Expr) error {
+func (wts *wrappedTSDBStore) MeasurementNames(auth query.Authorizer, database string, cond influxql.Expr) ([][]byte, error) {
+	cmd := &internal.DataMeasurementNamesCmd{
+		User:      authorizer2ProtoUser(auth),
+		Database:  database,
+		Condition: cond.String(),
+	}
 
+	res, err := applyCmd(wts.r, fsmCmdTypeDataMeasurementNames, cmd)
+	if err != nil {
+		return nil, err
+	}
+
+	return res.([][]byte), nil
 }
 
-func (w *wrappedTSDBStore) DeleteShard(id uint64) error {
+func (wts *wrappedTSDBStore) MeasurementsCardinality(database string) (int64, error) {
+	cmd := &internal.DataMeasurementsCardinalityCmd{
+		Database: database,
+	}
 
+	res, err := applyCmd(wts.r, fsmCmdTypeDataMeasurementsCardinality, cmd)
+	if err != nil {
+		return 0, err
+	}
+
+	return res.(int64), nil
 }
 
-func (w *wrappedTSDBStore) DiskSize() (int64, error) {
+func (wts *wrappedTSDBStore) DeleteSeries(database string, sources []influxql.Source, condition influxql.Expr) error {
+	sourcesData, err := influxql.Sources(sources).MarshalBinary()
+	if err != nil {
+		return err
+	}
 
+	cmd := &internal.DataDeleteSeriesCmd{
+		Database:   database,
+		SourceData: sourcesData,
+	}
+
+	_, err = applyCmd(wts.r, fsmCmdTypeDataDeleteSeries, cmd)
+
+	return err
 }
 
-func (w *wrappedTSDBStore) ExpandSources(sources influxql.Sources) (influxql.Sources, error) {
+func (wts *wrappedTSDBStore) SeriesCardinality(database string) (int64, error) {
+	cmd := &internal.DataSeriesCardinalityCmd{
+		Database: database,
+	}
 
+	res, err := applyCmd(wts.r, fsmCmdTypeDataSeriesCardinality, cmd)
+	if err != nil {
+		return 0, err
+	}
+
+	return res.(int64), nil
 }
 
-func (w *wrappedTSDBStore) ImportShard(id uint64, r io.Reader) error {
+func (wts *wrappedTSDBStore) TagKeys(auth query.Authorizer, shardIDs []uint64, cond influxql.Expr) ([]tsdb.TagKeys, error) {
+	cmd := &internal.DataTagKeysCmd{
+		User:      authorizer2ProtoUser(auth),
+		ShardIDs:  shardIDs,
+		Condition: cond.String(),
+	}
 
+	res, err := applyCmd(wts.r, fsmCmdTypeDataTagKeys, cmd)
+	if err != nil {
+		return nil, err
+	}
+
+	return res.([]tsdb.TagKeys), nil
 }
 
-func (w *wrappedTSDBStore) MeasurementSeriesCounts(database string) (measuments int, series int) {
+func (wts *wrappedTSDBStore) TagValues(auth query.Authorizer, shardIDs []uint64, cond influxql.Expr) ([]tsdb.TagValues, error) {
+	cmd := &internal.DataTagValuesCmd{
+		User:      authorizer2ProtoUser(auth),
+		ShardIDs:  shardIDs,
+		Condition: cond.String(),
+	}
 
+	res, err := applyCmd(wts.r, fsmCmdTypeDataTagValues, cmd)
+	if err != nil {
+		return nil, err
+	}
+
+	return res.([]tsdb.TagValues), nil
 }
 
-func (w *wrappedTSDBStore) MeasurementsCardinality(database string) (int64, error) {
+func pointsData2Proto(points []models.Point) ([]byte, error) {
+	size := 0
+	for _, p := range points {
+		size += p.StringSize() + 1
+	}
 
+	buf := make([]byte, 0, size)
+	for i := range points {
+		buf = points[i].AppendString(buf)
+		buf = append(buf, '\n')
+	}
+
+	return buf, nil
 }
 
-func (w *wrappedTSDBStore) MeasurementNames(auth query.Authorizer, database string, cond influxql.Expr) ([][]byte, error) {
-
+func pointsProto2Data(buf []byte) ([]models.Point, error) {
+	return models.ParsePoints(buf)
 }
 
-func (w *wrappedTSDBStore) Open() error {
+func authorizer2ProtoUser(auth query.Authorizer) *internal.UserInfo {
+	if ui, ok := auth.(*meta.UserInfo); ok {
+		return userInfoMeta2Proto(ui)
+	}
 
-}
-
-func (w *wrappedTSDBStore) Path() string {
-
-}
-
-func (w *wrappedTSDBStore) RestoreShard(id uint64, r io.Reader) error {
-
-}
-
-func (w *wrappedTSDBStore) SeriesCardinality(database string) (int64, error) {
-
-}
-
-func (w *wrappedTSDBStore) SetShardEnabled(shardID uint64, enabled bool) error {
-
-}
-
-func (w *wrappedTSDBStore) Shard(id uint64) *tsdb.Shard {
-
-}
-
-func (w *wrappedTSDBStore) ShardGroup(ids []uint64) tsdb.ShardGroup {
-
-}
-
-func (w *wrappedTSDBStore) ShardIDs() []uint64 {
-
-}
-
-func (w *wrappedTSDBStore) ShardN() int {
-
-}
-
-func (w *wrappedTSDBStore) ShardRelativePath(id uint64) (string, error) {
-
-}
-
-func (w *wrappedTSDBStore) Shards(ids []uint64) []*tsdb.Shard {
-
-}
-
-func (w *wrappedTSDBStore) Statistics(tags map[string]string) []models.Statistic {
-
-}
-
-func (w *wrappedTSDBStore) TagKeys(auth query.Authorizer, shardIDs []uint64, cond influxql.Expr) ([]tsdb.TagKeys, error) {
-
-}
-
-func (w *wrappedTSDBStore) TagValues(auth query.Authorizer, shardIDs []uint64, cond influxql.Expr) ([]tsdb.TagValues, error) {
-
-}
-
-func (w *wrappedTSDBStore) WithLogger(log *zap.Logger) {
-
-}
-
-func (w *wrappedTSDBStore) WriteToShard(shardID uint64, points []models.Point) error {
-
+	return nil
 }
