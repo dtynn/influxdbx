@@ -223,3 +223,11 @@ func authorizer2ProtoUser(auth query.Authorizer) *internal.UserInfo {
 
 	return nil
 }
+
+func protoUser2Authorizer(ui *internal.UserInfo) query.Authorizer {
+	if ui == nil {
+		return query.OpenAuthorizer
+	}
+
+	return userInfoProto2Meta(ui)
+}
