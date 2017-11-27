@@ -551,14 +551,14 @@ func (f *FSM) Snapshot() (raft.FSMSnapshot, error) {
 }
 
 func (f *FSM) Restore(r io.ReadCloser) error {
-	return fmt.Errorf("not implemented")
+	return fmt.Errorf("FSM.Resotre not implemented")
 }
 
 type FSMSnapshot struct {
 }
 
 func (f *FSMSnapshot) Persist(sink raft.SnapshotSink) error {
-	return fmt.Errorf("not implemented")
+	return fmt.Errorf("FSMSnapshot.Persist not implemented")
 }
 
 func (f *FSMSnapshot) Release() {

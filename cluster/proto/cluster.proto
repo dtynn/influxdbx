@@ -2,8 +2,10 @@ syntax = "proto3";
 package proto;
 
 enum Code {
-	CodeOK = 0;
+	CodeUnknown = 0;
+	CodeOK = 1;
 	CodeNotLeader = 1001;
+	CodeErrLeadershipLost = 1002;
 }
 
 service Cluster {
