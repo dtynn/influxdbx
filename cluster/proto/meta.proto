@@ -1,0 +1,167 @@
+syntax = "proto3";
+package proto;
+
+import "common.proto";
+
+message MetaRetentionPolicySpec {
+	string name = 1;
+	OptionalInt64 replicaN = 2;
+	OptionalInt64 duration = 3;
+	int64 ShardGroupDuration = 4;
+}
+
+message MetaRetentionPolicyUpdate {
+	OptionalString name = 1;
+	OptionalInt64 replicaN = 2;
+	OptionalInt64 duration = 3;
+	OptionalInt64 ShardGroupDuration = 4;
+}
+
+// acquire lease
+message MetaAcquireLeaseReq {
+	string name = 1;
+}
+
+// continuous query cmd
+message MetaCreateContinuousQueryReq {
+	string database = 1;
+	string name = 2;
+	string query = 3;
+}
+
+message MetaDropContinuousQueryReq {
+	string database = 1;
+	string name = 2;
+}
+
+// database cmd
+message MetaDatabaseReq {
+	string name = 1;
+}
+
+message MetaCreateDatabaseReq {
+	string name = 1;
+}
+
+message MetaCreateDatabaseWithRetentionPolicyReq {
+	string name = 1;
+	MetaRetentionPolicySpec spec = 2;
+}
+
+message MetaDropDatabaseReq {
+	string name = 1;
+}
+
+// retention policy
+message MetaCreateRetentionPolicyReq {
+	string database = 1;
+	MetaRetentionPolicySpec spec = 2;
+	bool makeDefault = 3;
+}
+
+message MetaRetentionPolicyReq {
+	string database = 1;
+	string name = 2;
+}
+
+message MetaDropRetentionPolicyReq {
+	string database = 1;
+	string name = 2;
+}
+
+message MetaUpdateRetentionPolicyReq {
+	string database = 1;
+	string name = 2;
+	MetaRetentionPolicyUpdate update = 3;
+	bool makeDefault = 4;
+}
+
+// subsription
+message MetaCreateSubscriptionReq {
+	string database = 1;
+	string rp = 2;
+	string name = 3;
+	string mode = 4;
+	repeated string destinations = 5;
+}
+
+message MetaDropSubscriptionReq {
+	string database = 1;
+	string rp = 2;
+	string name = 3;
+}
+
+// user cmd
+message MetaUserReq {
+	string name = 1;
+}
+
+message MetaCreateUserReq {
+	string name = 1;
+	string password = 2;
+	bool admin = 3;
+}
+
+message MetaDropUserReq {
+	string name = 1;
+}
+
+message MetaUpdateUserReq {
+	string name = 1;
+	string password = 2;
+}
+
+// user privilege
+message MetaSetAdminPrivilegeReq {
+	string username =1;
+	bool admin = 2;
+}
+
+message MetaSetPrivilegeReq {
+	string username = 1;
+	string database = 2;
+	int64 privilege = 3;
+}
+
+message MetaUserPrivilegesReq {
+	string username = 1;
+}
+
+message MetaUserPrivilegeReq {
+	string username = 1;
+	string database = 2;
+}
+
+message MetaAuthenticateReq {
+	string username = 1;
+	string password = 2;
+}
+
+// shard
+message MetaShardGroupsByTimeRangeReq {
+	string database = 1;
+	string policy = 2;
+	int64 tmin = 3;
+	int64 tmax = 4;
+}
+
+message MetaDropShardReq {
+	uint64 id = 1;
+}
+
+message MetaCreateShardGroupReq {
+	string database = 1;
+	string policy = 2;
+	int64 timestamp = 3;
+}
+
+message MetaDeleteShardGroupReq {
+	string database = 1;
+	string policy = 2;
+	uint64 id = 3;
+}
+
+message MetaPrecreateShardGroupsReq {
+	int64 from = 1;
+	int64 to = 2;
+}

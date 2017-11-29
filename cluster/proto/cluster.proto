@@ -1,12 +1,8 @@
 syntax = "proto3";
 package proto;
 
-enum Code {
-	CodeUnknown = 0;
-	CodeOK = 1;
-	CodeNotLeader = 1001;
-	CodeErrLeadershipLost = 1002;
-}
+import "common.proto";
+
 
 service Cluster {
 	// add nodes to cluster
@@ -21,22 +17,12 @@ message Node {
 	string address = 2;
 }
 
-message Leader {
-	bool available = 1;
-	string address = 2;
-}
-
-message Result {
-	Code code = 1;
-	string message = 2;
-}
-
 message ClusterJoinReq {
 	repeated Node node = 1;
 }
 
 message ClusterJoinResp {
-	Code code = 1;
+	Result result = 1;
 	Leader leader = 2;
 }
 
@@ -45,6 +31,6 @@ message ClusterRemoveReq {
 }
 
 message ClusterRemoveResp {
-	Code code = 1;
+	Result result = 1;
 	Leader leader = 2;
 }

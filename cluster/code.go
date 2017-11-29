@@ -7,7 +7,7 @@ import (
 	"github.com/hashicorp/raft"
 )
 
-func Error(code proto.Code) error {
+func Error(code proto.Code, msg string) error {
 	switch code {
 	case proto.Code_CodeOK:
 		return nil
@@ -19,7 +19,7 @@ func Error(code proto.Code) error {
 		return raft.ErrLeadershipLost
 
 	default:
-		return fmt.Errorf("unknown error code %d", code)
+		return fmt.Errorf("error code %d, msg %s", code, msg)
 	}
 }
 

@@ -7,11 +7,15 @@ import (
 
 var (
 	joinOKResp = &proto.ClusterJoinResp{
-		Code: proto.Code_CodeOK,
+		Result: &proto.Result{
+			Code: proto.Code_CodeOK,
+		},
 	}
 
 	removeOKResp = &proto.ClusterRemoveResp{
-		Code: proto.Code_CodeOK,
+		Result: &proto.Result{
+			Code: proto.Code_CodeOK,
+		},
 	}
 )
 
@@ -21,7 +25,9 @@ func (c *Cluster) Join(ctx context.Context, req *proto.ClusterJoinReq) (*proto.C
 		leader.Address, leader.Available = c.NodeManager.Leader()
 
 		return &proto.ClusterJoinResp{
-			Code:   proto.Code_CodeNotLeader,
+			Result: &proto.Result{
+				Code: proto.Code_CodeNotLeader,
+			},
 			Leader: leader,
 		}, nil
 	}
@@ -37,7 +43,9 @@ func (c *Cluster) Join(ctx context.Context, req *proto.ClusterJoinReq) (*proto.C
 			leader.Address, leader.Available = c.NodeManager.Leader()
 
 			return &proto.ClusterJoinResp{
-				Code:   proto.Code_CodeNotLeader,
+				Result: &proto.Result{
+					Code: proto.Code_CodeNotLeader,
+				},
 				Leader: leader,
 			}, nil
 		}
@@ -54,7 +62,9 @@ func (c *Cluster) Remove(ctx context.Context, req *proto.ClusterRemoveReq) (*pro
 		leader.Address, leader.Available = c.NodeManager.Leader()
 
 		return &proto.ClusterRemoveResp{
-			Code:   proto.Code_CodeNotLeader,
+			Result: &proto.Result{
+				Code: proto.Code_CodeNotLeader,
+			},
 			Leader: leader,
 		}, nil
 	}
@@ -70,7 +80,9 @@ func (c *Cluster) Remove(ctx context.Context, req *proto.ClusterRemoveReq) (*pro
 			leader.Address, leader.Available = c.NodeManager.Leader()
 
 			return &proto.ClusterRemoveResp{
-				Code:   proto.Code_CodeNotLeader,
+				Result: &proto.Result{
+					Code: proto.Code_CodeNotLeader,
+				},
 				Leader: leader,
 			}, nil
 		}

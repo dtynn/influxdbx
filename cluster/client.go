@@ -7,20 +7,22 @@ import (
 )
 
 type redirectResponse interface {
-	GetCode() proto.Code
+	GetResult() *proto.Result
 	GetLeader() *proto.Leader
 	Reset()
 }
 
 type clusterClient struct {
-	target string
-	relay  bool
+	target    string
+	relay     bool
+	maxInvoke int
 }
 
 func NewClusterClient(target string, relay bool) proto.ClusterClient {
 	return &clusterClient{
-		target: target,
-		relay:  relay,
+		target:    target,
+		relay:     relay,
+		maxInvoke: 5,
 	}
 }
 
@@ -44,26 +46,28 @@ func (c *clusterClient) Remove(ctx context.Context, in *proto.ClusterRemoveReq, 
 }
 
 func (c *clusterClient) invoke(ctx context.Context, method string, in, out interface{}, opts ...grpc.CallOption) error {
-	err := invoke(ctx, method, in, out, c.target, opts...)
-	if err != nil {
-		return err
-	}
+	for tried := 0; tried < c.maxInvoke; tried++ {
+		// network or service error
+		err := invoke(ctx, method, in, out, c.target, opts...)
+		if err != nil {
+			return err
+		}
 
-	if !c.relay {
-		return nil
-	}
+		if !c.relay {
+			return nil
+		}
 
-	rc, ok := out.(redirectResponse)
-	if !ok {
-		return nil
-	}
+		rc, ok := out.(redirectResponse)
+		if !ok {
+			return nil
+		}
 
-	if rc.GetCode() == proto.Code_CodeNotLeader && rc.GetLeader().GetAvailable() {
-		target := rc.GetLeader().GetAddress()
+		if rc.GetResult().GetCode() != proto.Code_CodeNotLeader || !rc.GetLeader().GetAvailable() {
+			return nil
+		}
 
+		c.target = rc.GetLeader().GetAddress()
 		rc.Reset()
-
-		return invoke(ctx, method, in, out, target, opts...)
 	}
 
 	return nil

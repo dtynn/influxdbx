@@ -1,0 +1,36 @@
+syntax = "proto3";
+package proto;
+
+enum Code {
+	CodeUnknown = 0;
+	CodeOK = 1;
+	CodeNotLeader = 1001;
+	CodeErrLeadershipLost = 1002;
+}
+
+message Empty {}
+
+message Leader {
+	bool available = 1;
+	string address = 2;
+}
+
+message Result {
+	Code code = 1;
+	string message = 2;
+}
+
+message UserInfo {
+	string name = 1;
+	string hash = 2;
+	bool admin = 3;
+	map<string, int64> privileges = 4;
+}
+
+message OptionalInt64 {
+	int64 val = 1;
+}
+
+message OptionalString {
+	string val = 1;
+}
