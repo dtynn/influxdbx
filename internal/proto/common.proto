@@ -1,0 +1,10 @@
+syntax = "proto3";
+package proto;
+
+message Str {
+	string val = 1;
+}
+
+message I64 {
+	int64 val = 2;
+}
