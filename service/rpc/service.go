@@ -1,9 +1,17 @@
 package rpc
 
 import (
+	"net"
+
 	"github.com/dtynn/influxdbx/internal/pb"
+	"go.uber.org/zap"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
+)
+
+const (
+	// MuxHeader tcp mux header
+	MuxHeader byte = 7
 )
 
 var (
@@ -14,12 +22,16 @@ var (
 type RPC struct {
 	s *grpc.Server
 
+	net.Listener
+
 	MetaNodeManager interface {
 		AddMetaNode(id uint64, address string) error
 		RemoveMetaNode(id uint64) error
 		IsLeader() bool
 		Leader() string
 	}
+
+	logger *zap.Logger
 }
 
 // Join add meta node

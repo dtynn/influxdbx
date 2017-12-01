@@ -15,6 +15,10 @@ var (
 	_ raft.FSMSnapshot = (*FSMSnapshot)(nil)
 )
 
+func newFSM() *FSM {
+	return &FSM{}
+}
+
 // FSM implement raft.FSM
 type FSM struct {
 	mu   sync.RWMutex
