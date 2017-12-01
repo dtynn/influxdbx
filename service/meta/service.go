@@ -1,6 +1,7 @@
 package meta
 
 import (
+	"context"
 	"fmt"
 	"net"
 	"path/filepath"
@@ -13,7 +14,6 @@ import (
 	"github.com/hashicorp/raft"
 	"github.com/hashicorp/raft-boltdb"
 	"go.uber.org/zap"
-	"golang.org/x/net/context"
 )
 
 const (
@@ -24,12 +24,11 @@ const (
 )
 
 // NewMeta return meta servie
-func NewMeta(dir string, clusterID uint64, cfg *Config) *Meta {
+func NewMeta(dir string, cfg *Config) *Meta {
 	return &Meta{
-		dir:       dir,
-		cfg:       cfg,
-		clusterID: clusterID,
-		logger:    zap.NewNop(),
+		dir:    dir,
+		cfg:    cfg,
+		logger: zap.NewNop(),
 	}
 }
 
@@ -37,8 +36,6 @@ func NewMeta(dir string, clusterID uint64, cfg *Config) *Meta {
 type Meta struct {
 	dir string
 	cfg *Config
-
-	clusterID uint64
 
 	mu sync.RWMutex
 
@@ -78,7 +75,7 @@ func (m *Meta) Open() error {
 
 	m.electNotify = make(chan bool, 1)
 
-	localID := raft.ServerID(strconv.FormatUint(m.clusterID, 10))
+	localID := raft.ServerID(strconv.FormatUint(m.cfg.ClusterID, 10))
 
 	m.rconf = raft.DefaultConfig()
 	m.rconf.LocalID = localID
@@ -111,7 +108,7 @@ func (m *Meta) Open() error {
 	}
 
 	if m.cfg.Join != "" {
-		if err := join(m.cfg.Join, m.clusterID, local.Address); err != nil {
+		if err := m.join(local.Address); err != nil {
 			return err
 		}
 	}
@@ -181,10 +178,12 @@ func (m *Meta) Leader() string {
 	return string(m.r.Leader())
 }
 
-func join(target string, localID uint64, localAddress raft.ServerAddress) error {
-	cli := rpc.NewMetaClient(target, true)
+func (m *Meta) join(localAddress raft.ServerAddress) error {
+	cli := rpc.NewMetaClient(m.cfg.Join, true)
+	cli.WithLogger(m.logger)
+
 	resp, err := cli.Join(context.Background(), &pb.MetaJoinReq{
-		Id:      localID,
+		Id:      m.cfg.ClusterID,
 		Address: string(localAddress),
 	})
 

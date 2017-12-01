@@ -69,6 +69,10 @@ func (r *RPC) WithLogger(l *zap.Logger) {
 
 // Join add meta node
 func (r *RPC) Join(ctx context.Context, req *pb.MetaJoinReq) (*pb.MetaJoinResp, error) {
+	if r.MetaNodeManager == nil {
+		return nil, ErrMetaDisabled
+	}
+
 	err := r.MetaNodeManager.AddMetaNode(req.GetId(), req.GetAddress())
 	resp := &pb.MetaJoinResp{
 		Result: &pb.ClusterResult{},
@@ -88,6 +92,10 @@ func (r *RPC) Join(ctx context.Context, req *pb.MetaJoinReq) (*pb.MetaJoinResp, 
 
 // Remove remove meta node
 func (r *RPC) Remove(ctx context.Context, req *pb.MetaRemoveReq) (*pb.MetaRemoveResp, error) {
+	if r.MetaNodeManager == nil {
+		return nil, ErrMetaDisabled
+	}
+
 	err := r.MetaNodeManager.RemoveMetaNode(req.GetId())
 	resp := &pb.MetaRemoveResp{
 		Result: &pb.ClusterResult{},

@@ -2,12 +2,12 @@ package rpc
 
 // Config rpc service config
 type Config struct {
-	EnableLog bool `toml:"enable-log"`
+	Verbose bool `toml:"verbose"`
 }
 
 // NewConfig new config
-func NewConfig() Config {
-	return Config{
-		EnableLog: true,
+func NewConfig() *Config {
+	return &Config{
+		Verbose: true,
 	}
 }
