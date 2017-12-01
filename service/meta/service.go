@@ -23,21 +23,32 @@ const (
 	raftFile = "raft.db"
 )
 
+// NewMeta return meta servie
+func NewMeta(dir string, clusterID uint64, cfg *Config) *Meta {
+	return &Meta{
+		dir:       dir,
+		cfg:       cfg,
+		clusterID: clusterID,
+		logger:    zap.NewNop(),
+	}
+}
+
 // Meta meta manager service
 type Meta struct {
 	dir string
-	cfg Config
+	cfg *Config
 
 	clusterID uint64
 
 	mu sync.RWMutex
+
+	logger *zap.Logger
 
 	net.Listener
 
 	r         *raft.Raft
 	rconf     *raft.Config
 	raftstore *raftboltdb.BoltStore
-	logger    *zap.Logger
 
 	electNotify chan bool
 }

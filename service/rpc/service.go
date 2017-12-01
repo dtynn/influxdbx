@@ -18,6 +18,13 @@ var (
 	_ pb.MetaServer = (*RPC)(nil)
 )
 
+// NewRPC return rpc service
+func NewRPC(cfg *Config) *RPC {
+	return &RPC{
+		logger: zap.NewNop(),
+	}
+}
+
 // RPC rpc service
 type RPC struct {
 	s *grpc.Server
@@ -32,6 +39,32 @@ type RPC struct {
 	}
 
 	logger *zap.Logger
+}
+
+// Open open the rpc service
+func (r *RPC) Open() error {
+	r.s = grpc.NewServer()
+
+	if r.MetaNodeManager != nil {
+		pb.RegisterMetaServer(r.s, r)
+	}
+
+	go r.s.Serve(r.Listener)
+	return nil
+}
+
+// Close close the rpc service
+func (r *RPC) Close() error {
+	if r.s != nil {
+		r.s.GracefulStop()
+	}
+
+	return nil
+}
+
+// WithLogger setup logger
+func (r *RPC) WithLogger(l *zap.Logger) {
+	r.logger = l.With(zap.String("service", "rpc"))
 }
 
 // Join add meta node

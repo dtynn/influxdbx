@@ -10,6 +10,7 @@ const (
 
 // Config meta service config
 type Config struct {
+	EnableLog        bool   `toml:"enable-log"`
 	LogCacheCapacity int    `toml:"log-cache-capacity"`
 	SnapshotRetain   int    `toml:"snapshot-retain"`
 	Bootstrap        bool   `toml:"bootstrap"`
@@ -19,6 +20,7 @@ type Config struct {
 // NewConfig return new config
 func NewConfig() Config {
 	return Config{
+		EnableLog:        true,
 		LogCacheCapacity: DefaultLogCacheCapacity,
 		SnapshotRetain:   DefaultSnapshotRetain,
 	}
