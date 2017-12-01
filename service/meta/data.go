@@ -38,7 +38,6 @@ type Data struct {
 	Term  uint64 // associated raft term
 	Index uint64 // associated raft index
 
-	MetaNodes []NodeInfo
 	DataNodes []NodeInfo
 	Databases []DatabaseInfo
 	Users     []UserInfo
@@ -49,67 +48,6 @@ type Data struct {
 
 	MaxShardGroupID uint64
 	MaxShardID      uint64
-}
-
-// CreateMetaNode add meta node to cluster
-func (data *Data) CreateMetaNode(id uint64, address string) error {
-	for _, mn := range data.MetaNodes {
-		if mn.ID == id {
-			// conflict meta node register
-			if mn.Address != address {
-				return ErrMetaNodeExists
-			}
-
-			// nodes alreay added
-			return nil
-		}
-	}
-
-	data.MetaNodes = append(data.MetaNodes, NodeInfo{
-		ID:      id,
-		Address: address,
-	})
-
-	sort.Sort(NodeInfos(data.MetaNodes))
-
-	return nil
-}
-
-// RemoveMetaNode remove meta node from cluster
-func (data *Data) RemoveMetaNode(id uint64) error {
-	if id == 0 {
-		return ErrNodeIDRequired
-	}
-
-	nodes := make([]NodeInfo, 0, len(data.MetaNodes))
-	for _, mn := range data.MetaNodes {
-		if mn.ID == id {
-			continue
-		}
-
-		nodes = append(nodes, mn)
-	}
-
-	if len(nodes) == len(data.MetaNodes) {
-		return ErrNodeNotFound
-	}
-
-	data.MetaNodes = nodes
-	return nil
-}
-
-// CloneMetaNodes returns a copy of the meta ndoes
-func (data *Data) CloneMetaNodes() []NodeInfo {
-	if data.MetaNodes == nil {
-		return nil
-	}
-
-	nodes := make([]NodeInfo, len(data.MetaNodes))
-	for i := range data.MetaNodes {
-		nodes[i] = data.MetaNodes[i].clone()
-	}
-
-	return nodes
 }
 
 // CreateDataNode add meta node to cluster
@@ -896,7 +834,6 @@ func (data *Data) UserPrivilege(name, database string) (*influxql.Privilege, err
 func (data *Data) Clone() *Data {
 	other := *data
 
-	other.MetaNodes = data.CloneMetaNodes()
 	other.DataNodes = data.CloneDataNodes()
 	other.Databases = data.CloneDatabases()
 	other.Users = data.CloneUsers()
@@ -912,11 +849,6 @@ func (data *Data) marshal() *metapb.MetaData {
 
 		MaxShardGroupID: data.MaxShardGroupID,
 		MaxShardID:      data.MaxShardID,
-	}
-
-	pb.MetaNodes = make([]*metapb.MetaNodeInfo, len(data.MetaNodes))
-	for i := range data.MetaNodes {
-		pb.MetaNodes[i] = data.MetaNodes[i].marshal()
 	}
 
 	pb.DataNodes = make([]*metapb.MetaNodeInfo, len(data.DataNodes))
