@@ -8,9 +8,12 @@ import (
 	"sync"
 	"time"
 
+	"github.com/dtynn/influxdbx/internal/pb"
+	"github.com/dtynn/influxdbx/service/rpc"
 	"github.com/hashicorp/raft"
 	"github.com/hashicorp/raft-boltdb"
 	"go.uber.org/zap"
+	"golang.org/x/net/context"
 )
 
 const (
@@ -97,7 +100,7 @@ func (m *Meta) Open() error {
 	}
 
 	if m.cfg.Join != "" {
-		if err := join(m.cfg.Join, local.ID, local.Address); err != nil {
+		if err := join(m.cfg.Join, m.clusterID, local.Address); err != nil {
 			return err
 		}
 	}
@@ -167,6 +170,20 @@ func (m *Meta) Leader() string {
 	return string(m.r.Leader())
 }
 
-func join(target string, localID raft.ServerID, localAddress raft.ServerAddress) error {
+func join(target string, localID uint64, localAddress raft.ServerAddress) error {
+	cli := rpc.NewMetaClient(target, true)
+	resp, err := cli.Join(context.Background(), &pb.MetaJoinReq{
+		Id:      localID,
+		Address: string(localAddress),
+	})
+
+	if err != nil {
+		return err
+	}
+
+	if resp.GetResult().GetCode() != pb.ResultCode_ResultCodeOK {
+		return fmt.Errorf("join result: %#v", resp.GetResult())
+	}
+
 	return nil
 }
