@@ -1,0 +1,12 @@
+syntax = "proto3";
+package pb;
+
+enum MetaCmdType {
+	MetaCmdTypeUnknown = 0;
+	MetaCmdTypeCreateMetaNode = 1;
+}
+
+message MetaCmdCreateMetaNode {
+	uint64 ID = 1;
+	string address = 2;
+}

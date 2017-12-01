@@ -1,0 +1,21 @@
+syntax = "proto3";
+package pb;
+
+enum ResultCode {
+	ResultCodeUnknown = 0;
+	ResultCodeOK = 1;
+
+	ResultCodeErrNotLeader = 1001;
+	ResultCodeErrLeadershipLost = 1002;
+}
+
+message ClusterLeader {
+	bool available = 1;
+	string address = 2;
+}
+
+message ClusterResult {
+	ResultCode code = 1;
+	string msg = 2;
+	ClusterLeader leader = 3;
+}

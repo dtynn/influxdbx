@@ -1,0 +1,43 @@
+syntax = "proto3";
+package pb;
+
+import "cluster_common.proto";
+import "meta_cmd.proto";
+
+service Meta {
+	// add meta node
+	rpc Join(MetaJoinReq) returns (MetaJoinResp);
+
+	// remove meta node
+	rpc Remove(MetaRemoveReq) returns (MetaRemoveResp);
+
+	// apply meta command
+	rpc Apply(MetaApplyReq) returns (MetaApplyResp);
+}
+
+message MetaJoinReq {
+	uint64 id = 1;
+	string address = 2;
+}
+
+message MetaJoinResp {
+	ClusterResult result = 1;
+}
+
+message MetaRemoveReq {
+	uint64 id = 1;
+}
+
+message MetaRemoveResp {
+	ClusterResult result = 1;
+}
+
+message MetaApplyReq {
+	MetaCmdType type = 1;
+	bytes data = 2;
+}
+
+message MetaApplyResp {
+	ClusterResult result = 1;
+	bytes data = 2;
+}

@@ -1,0 +1,94 @@
+syntax = "proto3";
+package pb;
+
+import "common.proto";
+
+message MetaData {
+	uint64 term = 1;
+	uint64 index = 2;
+
+	uint64 maxShardGroupID = 5;
+	uint64 maxShardID = 6;
+
+	repeated MetaNodeInfo metaNodes = 7;
+	repeated MetaNodeInfo dataNodes = 8;
+
+	repeated MetaDatabaseInfo databases = 9;
+
+	repeated MetaUserInfo users = 10;
+}
+
+message MetaLease {
+	string name = 1;
+	int64 expiration = 2;
+	uint64 owner = 3;
+}
+
+message MetaNodeInfo {
+	uint64 ID = 1;
+	string address = 2;
+}
+
+message MetaDatabaseInfo {
+	string name = 1;
+	string defaultRetentionPolicy = 2;
+	repeated MetaRetentionPolicyInfo retentionPolicies = 3;
+	repeated MetaContinuousQueryInfo continuousQueries = 4;
+}
+
+message MetaRetentionPolicySpec {
+	Str name = 1;
+	I64 duration = 2;
+	I64 shardGroupDuration = 3;
+	I64 replicaN = 4;
+}
+
+message MetaRetentionPolicyInfo {
+	string name = 1;
+	int64 duration = 2;
+	int64 shardGroupDuration = 3;
+	int64 replicaN = 4;
+	repeated MetaShardGroupInfo shardGroups = 5;
+	repeated MetaSubscriptionInfo subscriptions = 6;
+}
+
+message MetaShardGroupInfo {
+	uint64 ID = 1;
+	int64 startTime = 2;
+	int64 endTime = 3;
+	int64 deletedAt = 4;
+	repeated MetaShardInfo shards = 5;
+	int64 truncatedAt = 6;
+}
+
+message MetaShardInfo {
+	uint64 ID = 1;
+	repeated MetaShardOwner owners = 2;
+}
+
+message MetaSubscriptionInfo{
+	string name = 1;
+	string mode = 2;
+	repeated string Destinations = 3;
+}
+
+message MetaShardOwner {
+	uint64 nodeID = 1;
+}
+
+message MetaContinuousQueryInfo {
+	string name = 1;
+	string query = 2;
+}
+
+message MetaUserInfo {
+	string name = 1;
+	string hash = 2;
+	bool admin = 3;
+	repeated MetaUserPrivilege privileges = 4;
+}
+
+message MetaUserPrivilege {
+	string database = 1;
+	int32 privilege = 2;
+}

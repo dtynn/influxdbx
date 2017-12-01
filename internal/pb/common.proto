@@ -1,5 +1,5 @@
 syntax = "proto3";
-package proto;
+package pb;
 
 message Str {
 	string val = 1;
@@ -8,3 +8,4 @@ message Str {
 message I64 {
 	int64 val = 2;
 }
+
