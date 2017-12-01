@@ -1,15 +1,12 @@
 package meta
 
 import (
+	"strconv"
 	"sync"
+	"time"
 
-	"github.com/dtynn/influxdbx/internal/pb"
 	"github.com/hashicorp/raft"
-	"golang.org/x/net/context"
-)
-
-var (
-	_ pb.MetaServer = (*Meta)(nil)
+	"go.uber.org/zap"
 )
 
 // Meta meta manager
@@ -18,7 +15,8 @@ type Meta struct {
 
 	mu sync.RWMutex
 
-	r *raft.Raft
+	r      *raft.Raft
+	logger *zap.Logger
 }
 
 // Open open a meta service
@@ -26,17 +24,39 @@ func (m *Meta) Open() error {
 	return nil
 }
 
-// Join api for meta service
-func (m *Meta) Join(ctx context.Context, req *pb.MetaJoinReq) (*pb.MetaJoinResp, error) {
-	return nil, nil
+// WithLogger setup new logger
+func (m *Meta) WithLogger(l *zap.Logger) {
+	m.logger = l.With(zap.String("service", "meta"))
 }
 
-// Remove api for meta service
-func (m *Meta) Remove(ctx context.Context, req *pb.MetaRemoveReq) (*pb.MetaRemoveResp, error) {
-	return nil, nil
+// Close close meta service
+func (m *Meta) Close() error {
+	return nil
 }
 
-// Apply api for meta service
-func (m *Meta) Apply(ctx context.Context, req *pb.MetaApplyReq) (*pb.MetaApplyResp, error) {
-	return nil, nil
+// AddMetaNode add meta node to raft
+func (m *Meta) AddMetaNode(id uint64, address string) error {
+
+	return m.r.AddVoter(
+		raft.ServerID(strconv.FormatUint(id, 10)),
+		raft.ServerAddress(address),
+		0,
+		5*time.Second,
+	).Error()
+}
+
+// RemoveMetaNode remove meta node from raft
+func (m *Meta) RemoveMetaNode(id uint64) error {
+
+	return m.r.RemoveServer(raft.ServerID(strconv.FormatUint(id, 10)), 0, 5*time.Second).Error()
+}
+
+// IsLeader if current node is leader
+func (m *Meta) IsLeader() bool {
+	return m.r.State() == raft.Leader
+}
+
+// Leader return address of leader node
+func (m *Meta) Leader() string {
+	return string(m.r.Leader())
 }
